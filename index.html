@@ -1930,6 +1930,10 @@
             { id: "cowboy_intro", url: "assets/kid_rock_cowboy_intro.mp3", text: "🌵 COWBOY...", buffer: null, audioEl: null }
           ];
           this.kidRockLoading = false;
+          this.activeVoiceSource = null;
+          this.activeVoiceGain = null;
+          this.activeVoiceAudioEl = null;
+          this.activeVoiceEndTime = 0;
         }
 
         init() {
@@ -2092,6 +2096,10 @@
           } catch (e) {}
         }
 
+        isVoicePlaying() {
+          return performance.now() < this.activeVoiceEndTime;
+        }
+
         playKidRockVoice() {
           // Plays a random Kid Rock vocal catchphrase with zero latency and returns the selected clip info
           try {
@@ -2101,6 +2109,26 @@
             if (!this.kidRockLoading) {
               this.preloadKidRockClips();
             }
+
+            // Immediately stop previous voice source to prevent audio overlap
+            if (this.activeVoiceSource) {
+              try {
+                if (this.activeVoiceGain && this.ctx) {
+                  this.activeVoiceGain.gain.setValueAtTime(this.activeVoiceGain.gain.value, this.ctx.currentTime);
+                  this.activeVoiceGain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+                }
+                this.activeVoiceSource.stop(this.ctx ? this.ctx.currentTime + 0.05 : 0);
+              } catch (e) {}
+              this.activeVoiceSource = null;
+            }
+            if (this.activeVoiceAudioEl) {
+              try {
+                this.activeVoiceAudioEl.pause();
+                this.activeVoiceAudioEl.currentTime = 0;
+              } catch (e) {}
+              this.activeVoiceAudioEl = null;
+            }
+
             const randomIndex = Math.floor(Math.random() * this.kidRockClips.length);
             const clip = this.kidRockClips[randomIndex];
 
@@ -2112,11 +2140,25 @@
               source.connect(gain);
               gain.connect(this.ctx.destination);
               source.start(0);
+
+              this.activeVoiceSource = source;
+              this.activeVoiceGain = gain;
+              const durationMs = (clip.buffer.duration || 2.5) * 1000;
+              this.activeVoiceEndTime = performance.now() + durationMs;
+
+              source.onended = () => {
+                if (this.activeVoiceSource === source) {
+                  this.activeVoiceSource = null;
+                  this.activeVoiceGain = null;
+                }
+              };
               return clip;
             } else if (clip.audioEl) {
               clip.audioEl.currentTime = 0;
               clip.audioEl.volume = 0.85;
               clip.audioEl.play().catch(() => {});
+              this.activeVoiceAudioEl = clip.audioEl;
+              this.activeVoiceEndTime = performance.now() + (clip.audioEl.duration || 3.0) * 1000;
               return clip;
             } else {
               // Fallback to guitar power chord synth if clip still buffering
@@ -2624,6 +2666,7 @@
       let runBurgersCollected = 0;
       let runEpsteinFilesCollected = 0;
       let runPipesCleared = 0;
+      let pipesSinceLastKidRock = 10;
       let donnyNurseShieldTriggered = false;
       let toastQueue = [];
       let toastTimeout = null;
@@ -3768,8 +3811,15 @@
 
         let obstacleType = "couch";
         if (activeChar === "bobby") {
-          // 75% Standard Spawn (Vaccines), 25% Rare Spawn (Kid Rock Workout Pillar)
-          obstacleType = Math.random() < 0.25 ? "kid_rock" : "vaccine";
+          pipesSinceLastKidRock++;
+          // Only spawn Kid Rock if at least 5 obstacles have passed AND no Kid Rock voice clip is currently playing
+          const canSpawnKidRock = pipesSinceLastKidRock >= 5 && (!sfx || !sfx.isVoicePlaying());
+          if (canSpawnKidRock && Math.random() < 0.28) {
+            obstacleType = "kid_rock";
+            pipesSinceLastKidRock = 0;
+          } else {
+            obstacleType = "vaccine";
+          }
         } else if (activeChar === "donny") {
           obstacleType = "golden_arch";
         }
@@ -3797,6 +3847,7 @@
         runBurgersCollected = 0;
         runEpsteinFilesCollected = 0;
         runPipesCleared = 0;
+        pipesSinceLastKidRock = 10;
         donnyShieldActive = false;
         donnyShieldTimer = 0;
         donnyShieldSpawned = false;
@@ -9660,6 +9711,7 @@
         runBurgersCollected = 0;
         runEpsteinFilesCollected = 0;
         runPipesCleared = 0;
+        pipesSinceLastKidRock = 10;
         score = 0;
 
         // Ensure the Game Over modal hides completely (display = 'none')
