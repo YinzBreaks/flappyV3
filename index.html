@@ -1496,30 +1496,22 @@
           try {
             const now = this.ctx.currentTime;
             if (charId === "donny") {
-              // Lower, brassy synth tone (~130Hz–180Hz square/sawtooth mix) for his flap sound
-              const osc1 = this.ctx.createOscillator();
-              const osc2 = this.ctx.createOscillator();
+              // Deep, punchy retro synth flap (135Hz to 240Hz triangle sweep) - single lightweight oscillator for zero latency
+              const osc = this.ctx.createOscillator();
               const gain = this.ctx.createGain();
 
-              osc1.type = "sawtooth";
-              osc1.frequency.setValueAtTime(130, now);
-              osc1.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+              osc.type = "triangle";
+              osc.frequency.setValueAtTime(135, now);
+              osc.frequency.exponentialRampToValueAtTime(240, now + 0.10);
 
-              osc2.type = "square";
-              osc2.frequency.setValueAtTime(135, now);
-              osc2.frequency.exponentialRampToValueAtTime(185, now + 0.12);
+              gain.gain.setValueAtTime(0.35, now);
+              gain.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
 
-              gain.gain.setValueAtTime(0.36, now);
-              gain.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
-
-              osc1.connect(gain);
-              osc2.connect(gain);
+              osc.connect(gain);
               gain.connect(this.ctx.destination);
 
-              osc1.start(now);
-              osc2.start(now);
-              osc1.stop(now + 0.13);
-              osc2.stop(now + 0.13);
+              osc.start(now);
+              osc.stop(now + 0.11);
               return;
             }
 
@@ -2698,13 +2690,8 @@
             ? gameState.selectedCharacterId
             : (typeof selectedCharacter !== "undefined" ? selectedCharacter : "jd");
 
-          if (charId === "donny") {
-            this.vy = FLAP_IMPULSE * 1.05; // bouncy diaper lift
-            sfx.playFlap("donny");
-          } else {
-            this.vy = FLAP_IMPULSE;
-            sfx.playFlap(charId);
-          }
+          this.vy = FLAP_IMPULSE;
+          sfx.playFlap(charId);
           this.rotation = TILT_UP_RAD;
           this.flapFrames = 8;
           this.activeSpriteKey = "FLAP_UP";
@@ -2864,11 +2851,20 @@
 
             // Ensure destination draw size preserves natural aspect ratio:
             // Target rendering height on canvas: 55px (or 62px for prominent knockout pose).
-            // Compute draw width dynamically: renderWidth = targetHeight * (sw / sh).
             // Center sprite draw offsets around the collision hitbox center (player.x, player.y).
             const targetHeight = (spriteKey === "DEAD") ? 62 : 55;
-            const renderWidth = targetHeight * (sprite.sw / sprite.sh);
-            const renderHeight = targetHeight;
+            let renderWidth, renderHeight;
+
+            if (charId === "donny" && spriteKey !== "DEAD") {
+              // Anchor scale to base torso height (105px) so wings naturally extend up/down without shrinking/ballooning his head & diaper
+              const baseH = (char.sprites && char.sprites.FLAP_GLIDE && char.sprites.FLAP_GLIDE.sh) || 105;
+              const scale = 55 / baseH;
+              renderWidth = sprite.sw * scale;
+              renderHeight = sprite.sh * scale;
+            } else {
+              renderHeight = targetHeight;
+              renderWidth = targetHeight * (sprite.sw / sprite.sh);
+            }
 
             ctx.drawImage(
               img,
@@ -3937,10 +3933,6 @@
         const halfW = w / 2;
         const halfH = h / 2;
 
-        // Golden-yellow delicious fast-food glow
-        ctx.shadowColor = "rgba(250, 204, 21, 0.65)";
-        ctx.shadowBlur = 10;
-
         // --- 1. TOP BUN (Golden-yellow dome with sesame dots) ---
         const topBunH = 11;
         const topBunY = -halfH + 1;
@@ -4055,14 +4047,17 @@
         ctx.save();
         ctx.translate(x, y);
 
-        const pulse = Math.sin(performance.now() * 0.007);
-        // Golden glowing aura around collectible
-        ctx.shadowColor = "#fbbf24";
-        ctx.shadowBlur = 12 + pulse * 4;
-
-        // White / soft cyan Wet Wipe packet
         const pw = 28;
         const ph = 22;
+
+        // Outer soft golden halo
+        ctx.strokeStyle = "rgba(251, 191, 36, 0.35)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(-pw / 2 - 2, -ph / 2 - 2, pw + 4, ph + 4, 6);
+        ctx.stroke();
+
+        // White / soft cyan Wet Wipe packet
         ctx.fillStyle = "#f8fafc";
         ctx.beginPath();
         ctx.roundRect(-pw / 2, -ph / 2, pw, ph, 4);
@@ -4091,8 +4086,6 @@
         ctx.save();
         ctx.translate(4, -2);
         ctx.rotate(25 * Math.PI / 180);
-        ctx.shadowColor = "#f59e0b";
-        ctx.shadowBlur = 8;
 
         // Pin clasp head
         ctx.fillStyle = "#fbbf24";
@@ -5690,8 +5683,6 @@
           ctx.font = "900 8px 'Arial Black', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          ctx.shadowColor = "#000";
-          ctx.shadowBlur = 4;
           ctx.fillText("ARCH DE TRUMP", centerX, mountH / 2);
           ctx.restore();
 
@@ -5724,21 +5715,23 @@
             ctx.fillStyle = bgGrad;
             ctx.fillRect(leftX + 2, archTopY, totalW - 4, archH + 2);
 
-            // Glowing twin inverted golden arch ("W")
-            ctx.shadowColor = "rgba(250, 204, 21, 0.65)";
-            ctx.shadowBlur = 12;
-
             const archW = (totalW - 8) / 2;
             const arch1X = leftX + 4;
             const arch2X = centerX;
 
             function drawInvertedArchLobe(ax, aw) {
               const lobeCenter = ax + aw / 2;
-              // Outer thick border
+
+              // Outer soft golden glow halo (lightweight layered stroke, 0 blur GPU overhead)
               ctx.beginPath();
               ctx.moveTo(ax, archTopY);
               ctx.bezierCurveTo(ax + 2, archBotY, lobeCenter - 2, archBotY + 2, lobeCenter, archBotY);
               ctx.bezierCurveTo(lobeCenter + 2, archBotY + 2, ax + aw - 2, archBotY, ax + aw, archTopY);
+              ctx.lineWidth = 14;
+              ctx.strokeStyle = "rgba(250, 204, 21, 0.28)";
+              ctx.stroke();
+
+              // Outer thick border
               ctx.lineWidth = 10;
               ctx.strokeStyle = "#ca8a04";
               ctx.stroke();
@@ -5854,9 +5847,6 @@
 
           // 3. THICK, GLOWING TWIN CURVED GOLDEN ARCH (#facc15) WITH INNER DARK SHADOW & YELLOW BORDER (#eab308)
           ctx.save();
-          ctx.shadowColor = "rgba(250, 204, 21, 0.65)";
-          ctx.shadowBlur = 14;
-
           const archW = (totalW - 8) / 2;
           const arch1X = leftX + 4;
           const arch2X = centerX;
@@ -5876,11 +5866,16 @@
             ctx.fill();
             ctx.restore();
 
-            // Outer thick yellow border (#eab308 / #ca8a04)
+            // Outer soft golden glow halo (lightweight layered stroke, 0 blur GPU overhead)
             ctx.beginPath();
             ctx.moveTo(ax, archBaseY);
             ctx.bezierCurveTo(ax + 2, archTopY - 2, lobeCenter - 2, archTopY - 2, lobeCenter, archTopY);
             ctx.bezierCurveTo(lobeCenter + 2, archTopY - 2, ax + aw - 2, archTopY - 2, ax + aw, archBaseY);
+            ctx.lineWidth = 15;
+            ctx.strokeStyle = "rgba(250, 204, 21, 0.28)";
+            ctx.stroke();
+
+            // Outer thick yellow border (#eab308 / #ca8a04)
             ctx.lineWidth = 11;
             ctx.strokeStyle = "#ca8a04";
             ctx.stroke();
