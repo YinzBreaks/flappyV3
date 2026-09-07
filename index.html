@@ -1918,10 +1918,18 @@
       const PIPE_WIDTH = 75;
       const MIN_PIPE_HEIGHT = 65;
 
-      // --- AUDIO SYNTHESIZER (Pure Web Audio API) ---
+      // --- AUDIO SYNTHESIZER (Pure Web Audio API & Iconic Voice Soundbites) ---
       class SoundFX {
         constructor() {
           this.ctx = null;
+          // Iconic Kid Rock catchphrase soundbite pool
+          this.kidRockClips = [
+            { id: "bawitdaba", url: "assets/kid_rock_bawitdaba.mp3", text: "🎸 BAWITDABA!", buffer: null, audioEl: null },
+            { id: "my_name_is_kid", url: "assets/kid_rock_my_name_is_kid.mp3", text: "🎤 MY NAME IS KIIIIID!", buffer: null, audioEl: null },
+            { id: "cowboy_baby", url: "assets/kid_rock_cowboy_baby.mp3", text: "🤠 COWBOY, BABY!", buffer: null, audioEl: null },
+            { id: "cowboy_intro", url: "assets/kid_rock_cowboy_intro.mp3", text: "🌵 COWBOY...", buffer: null, audioEl: null }
+          ];
+          this.kidRockLoading = false;
         }
 
         init() {
@@ -1934,6 +1942,41 @@
           if (this.ctx && this.ctx.state === "suspended") {
             this.ctx.resume();
           }
+          this.preloadKidRockClips();
+        }
+
+        preloadKidRockClips() {
+          if (this.kidRockLoading) return;
+          this.kidRockLoading = true;
+          this.kidRockClips.forEach(clip => {
+            if (clip.buffer) return;
+            // Preload via fetch & AudioContext decodeAudioData for zero-latency Web Audio playback
+            if (this.ctx && typeof fetch === "function") {
+              fetch(clip.url)
+                .then(res => {
+                  if (!res.ok) throw new Error("Audio fetch failed: " + res.status);
+                  return res.arrayBuffer();
+                })
+                .then(arrayBuffer => this.ctx.decodeAudioData(arrayBuffer))
+                .then(decodedAudio => {
+                  clip.buffer = decodedAudio;
+                })
+                .catch(() => {
+                  // Fallback to HTML5 Audio element for offline or file:// protocol
+                  try {
+                    const a = new Audio(clip.url);
+                    a.preload = "auto";
+                    clip.audioEl = a;
+                  } catch (e) {}
+                });
+            } else {
+              try {
+                const a = new Audio(clip.url);
+                a.preload = "auto";
+                clip.audioEl = a;
+              } catch (e) {}
+            }
+          });
         }
 
         playFlap(charId) {
@@ -2047,6 +2090,43 @@
             osc1.stop(now + duration);
             osc2.stop(now + duration);
           } catch (e) {}
+        }
+
+        playKidRockVoice() {
+          // Plays a random Kid Rock vocal catchphrase with zero latency and returns the selected clip info
+          try {
+            if (!this.ctx) {
+              this.init();
+            }
+            if (!this.kidRockLoading) {
+              this.preloadKidRockClips();
+            }
+            const randomIndex = Math.floor(Math.random() * this.kidRockClips.length);
+            const clip = this.kidRockClips[randomIndex];
+
+            if (this.ctx && clip.buffer) {
+              const source = this.ctx.createBufferSource();
+              const gain = this.ctx.createGain();
+              source.buffer = clip.buffer;
+              gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+              source.connect(gain);
+              gain.connect(this.ctx.destination);
+              source.start(0);
+              return clip;
+            } else if (clip.audioEl) {
+              clip.audioEl.currentTime = 0;
+              clip.audioEl.volume = 0.85;
+              clip.audioEl.play().catch(() => {});
+              return clip;
+            } else {
+              // Fallback to guitar power chord synth if clip still buffering
+              this.playGuitarRiff();
+              return clip;
+            }
+          } catch (e) {
+            this.playGuitarRiff();
+            return null;
+          }
         }
 
         playHit() {
@@ -4008,9 +4088,18 @@
             runPipesCleared++;
             score++;
 
-            // Themed Sound Stabs
+            // Themed Sound Stabs & Kid Rock Catchphrase Shout
             if (p.obstacleType === "kid_rock") {
-              sfx.playGuitarRiff();
+              const playedClip = sfx.playKidRockVoice();
+              const phraseText = (playedClip && playedClip.text) ? playedClip.text : "🎸 BAWITDABA!";
+              floatingPopups.push({
+                x: bird.x,
+                y: Math.max(70, bird.y - 25),
+                startTime: performance.now(),
+                duration: 1500,
+                text: phraseText,
+                isKidRock: true
+              });
             } else {
               sfx.playScore();
             }
@@ -5038,6 +5127,17 @@
             docGrad.addColorStop(0.5, "#ef4444");
             docGrad.addColorStop(1, "#b91c1c");
             ctx.fillStyle = docGrad;
+          } else if (p.isKidRock) {
+            // High-voltage Southern rock typography: deep crimson stroke with fiery electric gold/orange gradient
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#450a0a";
+            ctx.strokeText(popupText, 0, 0);
+            const rockGrad = ctx.createLinearGradient(0, -10, 0, 10);
+            rockGrad.addColorStop(0, "#fef08a");
+            rockGrad.addColorStop(0.35, "#facc15");
+            rockGrad.addColorStop(0.75, "#f97316");
+            rockGrad.addColorStop(1, "#dc2626");
+            ctx.fillStyle = rockGrad;
           } else if (p.isMilk) {
             // Shadow stroke
             ctx.lineWidth = 4;
