@@ -7,7 +7,7 @@
 
   <!-- Primary SEO & Mobile Meta Tags -->
   <meta name="title" content="Flappy 2026: The Satirical Flying Odyssey">
-  <meta name="description" content="Dodge plush velvet recliners, power racks, and Kid Rock stages! Play as Portly JD, Bobby &amp; Brain Worm, or Diaper Don with custom shields and cartoon knockouts. 100% free web game.">
+  <meta name="description" content="Dodge plush velvet recliners, power racks, and Kid Rock stages! Play as Pwease Pway JD!, Bobby &amp; Brain Worm, or Diaper Don with custom shields and cartoon knockouts. 100% free web game.">
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,13 +16,13 @@
   <!-- Open Graph / Facebook / Discord / iMessage -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Flappy 2026: The Satirical Flying Odyssey">
-  <meta property="og:description" content="Dodge recliners, pharmaceutical syringes, and Kid Rock concert stages as JD Vance, Bobby Kennedy Jr., and Diaper Don! Grab Diet Dew and Fresh Pampers shields.">
+  <meta property="og:description" content="Dodge recliners, pharmaceutical syringes, and Kid Rock concert stages as Pwease Pway JD!, Bobby Kennedy Jr., and Diaper Don! Grab Diet Dew and Fresh Pampers shields.">
   <meta property="og:image" content="assets/portly_jd.png">
 
   <!-- Twitter / X Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Flappy 2026: The Satirical Flying Odyssey">
-  <meta name="twitter:description" content="Can you survive the couch headwinds? Play as JD Vance, Bobby &amp; Worm, or Diaper Don in the ultimate satirical arcade flyer.">
+  <meta name="twitter:description" content="Can you survive the couch headwinds? Play as Pwease Pway JD!, Bobby &amp; Worm, or Diaper Don in the ultimate satirical arcade flyer.">
   <meta name="twitter:image" content="assets/portly_jd.png">
 
   <!-- Inline Dynamic Cartoon Bird SVG Favicon -->
@@ -1206,7 +1206,7 @@
       </div>
 
       <div class="character-info">
-        <div id="carousel-char-name" class="character-name">JD VANCE</div>
+        <div id="carousel-char-name" class="character-name">Pwease Pway JD!</div>
         <div id="carousel-status-pill" class="character-status-pill selected">✓ ACTIVE FLAPPER</div>
         <button id="open-gallery-btn" class="btn-gallery-trigger" type="button" aria-label="Open Cartoon Showcase">
           <span>🔍</span>
@@ -1290,7 +1290,7 @@
         </div>
 
         <div class="gallery-tabs">
-          <button id="gallery-tab-jd" class="gallery-tab-btn active" type="button" data-tab="jd">🛋️ JD Vance</button>
+          <button id="gallery-tab-jd" class="gallery-tab-btn active" type="button" data-tab="jd">🛋️ Pwease Pway JD!</button>
           <button id="gallery-tab-bobby" class="gallery-tab-btn" type="button" data-tab="bobby">🏋️ Bobby</button>
           <button id="gallery-tab-donny" class="gallery-tab-btn" type="button" data-tab="donny">🍼 Donny</button>
           <button id="gallery-tab-props" class="gallery-tab-btn" type="button" data-tab="props">🎨 Props</button>
@@ -2419,7 +2419,7 @@
       const CHARACTER_REGISTRY = {
         jd: {
           id: "jd",
-          name: "JD Vance",
+          name: "Pwease Pway JD!",
           src: "assets/portly_jd.png",
           sheetW: 1024,
           sheetH: 572,
@@ -5697,15 +5697,54 @@
             ctx.stroke();
           });
 
-          // 2. INVERTED HANGING GOLDEN ARCH
-          const bumperH = Math.min(12, ch - mountH);
-          const archTopY = mountH;
-          const archBotY = Math.max(mountH + 4, ch - bumperH);
-          const archH = archBotY - archTopY;
+          // 2. PROPORTIONAL GOLDEN ARCH & RED EXTENSION PILLAR (MATCHING BOTTOM OBSTACLE TREATMENT)
+          const bumperH = Math.min(12, Math.max(6, ch * 0.15));
+          const archH = Math.min(68, Math.max(20, ch - mountH - bumperH));
+          const archBotY = ch - bumperH;
+          const archTopY = archBotY - archH;
 
+          // A. RED FAST-FOOD PILLAR EXTENSION FROM CEILING BAR DOWN TO ARCH (If obstacle is tall)
+          if (archTopY > mountH) {
+            const pillarTopY = mountH;
+            const pillarH = archTopY - pillarTopY + 4; // Slight overlap behind arch
+
+            // Pillar body matching bottom obstacle
+            const pillarGrad = ctx.createLinearGradient(x, 0, x + cw, 0);
+            pillarGrad.addColorStop(0, "#7f1d1d");
+            pillarGrad.addColorStop(0.12, "#991b1b");
+            pillarGrad.addColorStop(0.35, "#dc2626");
+            pillarGrad.addColorStop(0.65, "#ef4444");
+            pillarGrad.addColorStop(0.88, "#991b1b");
+            pillarGrad.addColorStop(1, "#7f1d1d");
+
+            ctx.fillStyle = pillarGrad;
+            ctx.fillRect(x, pillarTopY, cw, pillarH);
+
+            // Pillar borders
+            ctx.lineWidth = 1.8;
+            ctx.strokeStyle = "#450a0a";
+            ctx.strokeRect(x, pillarTopY, cw, pillarH);
+
+            // Yellow corner moldings / vertical pinstripes
+            ctx.fillStyle = "#facc15";
+            ctx.fillRect(x + 3, pillarTopY, 2.5, pillarH);
+            ctx.fillRect(x + cw - 5.5, pillarTopY, 2.5, pillarH);
+
+            // Drive-thru horizontal panel seams every 22px
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = "rgba(69, 10, 10, 0.5)";
+            for (let py = pillarTopY + 18; py < archTopY; py += 22) {
+              ctx.beginPath();
+              ctx.moveTo(x + 2, py);
+              ctx.lineTo(x + cw - 2, py);
+              ctx.stroke();
+            }
+          }
+
+          // B. PROPORTIONAL INVERTED GOLDEN ARCH (Fixed ~68px, Never Super-Stretched)
           if (archH > 6) {
             ctx.save();
-            // Dark fast-food red backdrop between clearance bar and bumper
+            // Dark fast-food red backdrop behind the golden arch
             const bgGrad = ctx.createLinearGradient(leftX, 0, rightX, 0);
             bgGrad.addColorStop(0, "#450a0a");
             bgGrad.addColorStop(0.15, "#7f1d1d");
@@ -6667,7 +6706,7 @@
       const GALLERY_DATA = {
         jd: {
           id: "jd",
-          name: "JD Vance",
+          name: "Pwease Pway JD!",
           themeColor: "#3b82f6",
           glowColor: "rgba(59, 130, 246, 0.35)",
           assets: [
@@ -7154,7 +7193,7 @@
               id: "prop_erika_note",
               tag: "SECRET LOVE NOTE • JD'S SHIELD",
               title: "THE ERIKA K. LOVE NOTE",
-              desc: "A handwritten stationery note inscribed with 'Love' on the top line and 'Erika K.' underneath. Equips JD Vance with an unbreakable protective shield.",
+              desc: "A handwritten stationery note inscribed with 'Love' on the top line and 'Erika K.' underneath. Equips Pwease Pway JD! with an unbreakable protective shield.",
               isProp: true,
               propType: "erika_note",
               stats: [
@@ -8491,7 +8530,7 @@
 
         let viralQuote = "";
         if (activeCharId === "jd") {
-          viralQuote = `I dodged ${score} velvet recliners as JD Vance in Flappy 2026! Can you beat my high score? 🛋️🦅`;
+          viralQuote = `I dodged ${score} velvet recliners as Pwease Pway JD! in Flappy 2026! Can you beat my high score? 🛋️🦅`;
         } else if (activeCharId === "bobby") {
           viralQuote = `I biohacked ${score} obstacles with Bobby & the Brain Worm in Flappy 2026! Can you beat me? 🪱💪`;
         } else {
