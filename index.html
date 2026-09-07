@@ -3718,8 +3718,6 @@
 
               score += 3;
               checkDonnyMilestones();
-              runDewsCollected++;
-              progression.totalDews++;
 
               if (c.isBurger) {
                 runBurgersCollected = (runBurgersCollected || 0) + 1;
@@ -3730,15 +3728,19 @@
               } else if (c.isMilk) {
                 sfx.playMilkPickup();
               } else {
+                // Genuine Diet Mountain Dew can collected (Pwease Pway JD! runs)
+                runDewsCollected++;
+                progression.totalDews++;
                 sfx.playDewPickup();
+
+                if (runDewsCollected >= 3) {
+                  unlockAchievement("dew_diligence");
+                }
+                if (progression.totalDews >= 15) {
+                  unlockAchievement("worm_whisperer");
+                }
               }
 
-              if (runDewsCollected >= 3) {
-                unlockAchievement("dew_diligence");
-              }
-              if (progression.totalDews >= 15) {
-                unlockAchievement("worm_whisperer");
-              }
               if (score >= 10) {
                 unlockAchievement("double_digits");
               }
