@@ -2542,6 +2542,7 @@
 
       let runDewsCollected = 0;
       let runBurgersCollected = 0;
+      let runEpsteinFilesCollected = 0;
       let runPipesCleared = 0;
       let donnyNurseShieldTriggered = false;
       let toastQueue = [];
@@ -3584,7 +3585,7 @@
         const isBobbyRun = (activeChar === "bobby");
         const isDonnyRun = (activeChar === "donny");
 
-        // Spawn themed collectibles (Dew, Raw Milk, Cheeseburger, Raccoon Foreskins, Tylenol)
+        // Spawn themed collectibles (Dew, Raw Milk, Big Macs, Epstein File Pages, Raccoon Foreskins, Tylenol)
         couchSpawnCounter++;
         if (couchSpawnCounter >= nextCanInterval) {
           couchSpawnCounter = 0;
@@ -3593,8 +3594,9 @@
           let isRaccoon = false;
           let isTylenol = false;
           let isPampers = false;
+          let isEpsteinFile = false;
           let isMilk = isBobbyRun;
-          let isBurger = isDonnyRun;
+          let isBurger = false;
 
           if (isBobbyRun) {
             // Bobby run (RFK): 40% Raccoon Foreskins, 30% Extra Strength Tylenol (Autism), 30% Raw Milk
@@ -3607,14 +3609,14 @@
               isMilk = false;
             }
           } else if (isDonnyRun) {
-            // Donny run: 60% Double Cheeseburger, 25% Fresh Pampers pack, 15% Tylenol
+            // Donny run: 60% Big Macs, 40% Epstein File Pages (ZERO Tylenol)
             const r = Math.random();
-            if (r < 0.25) {
-              isPampers = true;
+            if (r < 0.40) {
+              isEpsteinFile = true;
               isBurger = false;
-            } else if (r < 0.40) {
-              isTylenol = true;
-              isBurger = false;
+            } else {
+              isBurger = true;
+              isEpsteinFile = false;
             }
           }
 
@@ -3622,14 +3624,15 @@
             x: x + PIPE_WIDTH / 2,
             baseY: topHeight + PIPE_GAP / 2,
             y: topHeight + PIPE_GAP / 2,
-            width: isRaccoon ? 28 : (isTylenol ? 24 : (isPampers ? 30 : (isBobbyRun ? 26 : (isDonnyRun ? 32 : 24)))),
-            height: isRaccoon ? 30 : (isTylenol ? 34 : (isPampers ? 26 : (isBobbyRun ? 36 : (isDonnyRun ? 28 : 40)))),
+            width: isRaccoon ? 28 : (isTylenol ? 24 : (isEpsteinFile ? 26 : (isPampers ? 30 : (isBobbyRun ? 26 : (isDonnyRun ? 32 : 24))))),
+            height: isRaccoon ? 30 : (isTylenol ? 34 : (isEpsteinFile ? 34 : (isPampers ? 26 : (isBobbyRun ? 36 : (isDonnyRun ? 28 : 40))))),
             seed: Math.random() * Math.PI * 2,
             collected: false,
             isMilk: isMilk,
             isBurger: isBurger,
             isRaccoon: isRaccoon,
             isTylenol: isTylenol,
+            isEpsteinFile: isEpsteinFile,
             isPampers: isPampers
           });
         }
@@ -3712,6 +3715,7 @@
         nextCanInterval = 2;
         runDewsCollected = 0;
         runBurgersCollected = 0;
+        runEpsteinFilesCollected = 0;
         runPipesCleared = 0;
         donnyShieldActive = false;
         donnyShieldTimer = 0;
@@ -4141,6 +4145,28 @@
                   duration: 1300,
                   text: "+5 RACCOON FORESKINS!",
                   isMilk: true
+                });
+                checkDonnyMilestones();
+                collectibles.splice(i, 1);
+                continue;
+              }
+
+              if (c.isEpsteinFile) {
+                score += 5;
+                runEpsteinFilesCollected = (runEpsteinFilesCollected || 0) + 1;
+                progression.totalEpsteinFiles = (progression.totalEpsteinFiles || 0) + 1;
+                sfx.playChaChing();
+                if (score >= 10) {
+                  unlockAchievement("double_digits");
+                }
+                saveProgression(progression);
+                floatingPopups.push({
+                  x: c.x,
+                  y: c.y,
+                  startTime: performance.now(),
+                  duration: 1300,
+                  text: "+5 EPSTEIN FILE (REDACTED)!",
+                  isEpsteinFile: true
                 });
                 checkDonnyMilestones();
                 collectibles.splice(i, 1);
@@ -4735,6 +4761,103 @@
         ctx.restore();
       }
 
+      function drawVectorEpsteinFile(x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        const pw = 26;
+        const ph = 34;
+        const halfW = pw / 2;
+        const halfH = ph / 2;
+
+        const pulse = Math.sin(performance.now() * 0.006 + x * 0.05);
+        ctx.rotate(pulse * 0.06);
+
+        // Ambient glow and drop shadow
+        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetY = 2;
+
+        // Manila / aged court ivory paper
+        const paperGrad = ctx.createLinearGradient(-halfW, -halfH, halfW, halfH);
+        paperGrad.addColorStop(0, "#ffffff");
+        paperGrad.addColorStop(0.65, "#fefce8");
+        paperGrad.addColorStop(1, "#fef3c7");
+        ctx.fillStyle = paperGrad;
+
+        // Dog-ear corner fold on top right
+        const dogEar = 6;
+        ctx.beginPath();
+        ctx.moveTo(-halfW, -halfH);
+        ctx.lineTo(halfW - dogEar, -halfH);
+        ctx.lineTo(halfW, -halfH + dogEar);
+        ctx.lineTo(halfW, halfH);
+        ctx.lineTo(-halfW, halfH);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "#cbd5e1";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Dog-ear folded flap
+        ctx.fillStyle = "#e2e8f0";
+        ctx.beginPath();
+        ctx.moveTo(halfW - dogEar, -halfH);
+        ctx.lineTo(halfW - dogEar, -halfH + dogEar);
+        ctx.lineTo(halfW, -halfH + dogEar);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#94a3b8";
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+
+        // Red "UNSEALED" / "EXHIBIT" rubber stamp
+        ctx.save();
+        ctx.translate(0, -halfH + 6.5);
+        ctx.rotate(-0.08);
+        ctx.fillStyle = "rgba(220, 38, 38, 0.15)";
+        ctx.fillRect(-halfW + 3, -3, pw - 6, 6);
+        ctx.strokeStyle = "#dc2626";
+        ctx.lineWidth = 0.8;
+        ctx.strokeRect(-halfW + 3, -3, pw - 6, 6);
+        ctx.fillStyle = "#dc2626";
+        ctx.font = "900 4.8px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("UNSEALED", 0, 0);
+        ctx.restore();
+
+        // Heavy black redaction marker bars
+        ctx.fillStyle = "#0f172a";
+        // Bar 1: FLIGHT MANIFEST
+        ctx.fillRect(-halfW + 3, -halfH + 12, pw - 7, 2.4);
+
+        // Bar 2: Visible "TRUMP" name followed by black redaction
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "800 4px monospace";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText("TRUMP", -halfW + 3, -halfH + 17.5);
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(-halfW + 15, -halfH + 16.2, pw - 18, 2.4);
+
+        // Bar 3: PASSENGER LIST
+        ctx.fillRect(-halfW + 3, -halfH + 21, pw - 6, 2.4);
+
+        // Bar 4: NOTES
+        ctx.fillRect(-halfW + 4, -halfH + 25.5, pw - 10, 2.2);
+
+        // Red exhibit docket stamp at bottom left
+        ctx.fillStyle = "#ef4444";
+        ctx.beginPath();
+        ctx.arc(-halfW + 5.5, halfH - 4.5, 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
       function drawCollectibles() {
         if (currentState === STATE.START || currentState === "START") return;
         const activeChar = (typeof gameState !== "undefined" && gameState.selectedCharacterId && CHARACTER_REGISTRY[gameState.selectedCharacterId])
@@ -4755,6 +4878,10 @@
             drawVectorTylenol(c.x, c.y);
             return;
           }
+          if (c.isEpsteinFile) {
+            drawVectorEpsteinFile(c.x, c.y);
+            return;
+          }
           if (c.isShieldPowerup) {
             if (c.isErikaNote || activeChar === "jd") {
               drawVectorErikaNote(c.x, c.y);
@@ -4767,10 +4894,6 @@
           }
           if (c.isPampers) {
             drawVectorShieldPowerup(c.x, c.y);
-            return;
-          }
-          if (c.isTylenol) {
-            drawVectorTylenol(c.x, c.y);
             return;
           }
           if (c.isBurger) {
@@ -4905,6 +5028,16 @@
             burgerGrad.addColorStop(0.45, "#facc15"); // golden arch yellow
             burgerGrad.addColorStop(1, "#dc2626"); // fast-food red bottom
             ctx.fillStyle = burgerGrad;
+          } else if (p.isEpsteinFile) {
+            // Unsealed court document & redaction bar styling: bold crimson outline with glowing gold text
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#450a0a";
+            ctx.strokeText(popupText, 0, 0);
+            const docGrad = ctx.createLinearGradient(0, -10, 0, 10);
+            docGrad.addColorStop(0, "#fee2e2");
+            docGrad.addColorStop(0.5, "#ef4444");
+            docGrad.addColorStop(1, "#b91c1c");
+            ctx.fillStyle = docGrad;
           } else if (p.isMilk) {
             // Shadow stroke
             ctx.lineWidth = 4;
@@ -7678,6 +7811,20 @@
                 { label: "Durability", val: "1 Free Smash" },
                 { label: "Protection", val: "100% Leak-Proof" }
               ]
+            },
+            {
+              id: "prop_epstein_file",
+              tag: "COURT EXHIBIT • UNSEALED MANIFEST",
+              title: "EPSTEIN FLIGHT LOG PAGE",
+              desc: "Declassified Palm Beach flight manifest with heavy black marker redactions covering VIP passenger lists, flight coordinates, and frequent flyer stamps. Diaper Don's favorite high-value collectible.",
+              isProp: true,
+              propType: "epstein_file",
+              stats: [
+                { label: "Classification", val: "Unsealed" },
+                { label: "Redaction", val: "94% Black Ink" },
+                { label: "Flight Route", val: "PBI ✈️ STT" },
+                { label: "VIP Passenger", val: "Trump, D." }
+              ]
             }
           ]
         }
@@ -8445,6 +8592,140 @@
           gCtx.fillStyle = "#0f172a";
           gCtx.font = "bold 22px 'Segoe Script', 'Brush Script MT', cursive, Georgia, serif";
           gCtx.fillText("Erika K.", 6, -halfH + 74);
+        } else if (propType === "epstein_file") {
+          // Epstein Flight Log Page (Diaper Don's High-Value Unsealed Collectible)
+          const pw = 140;
+          const ph = 180;
+          const halfW = pw / 2;
+          const halfH = ph / 2;
+
+          gCtx.shadowColor = "rgba(0, 0, 0, 0.7)";
+          gCtx.shadowBlur = 24;
+          gCtx.shadowOffsetY = 12;
+
+          // Aged ivory court parchment
+          const paperGrad = gCtx.createLinearGradient(-halfW, -halfH, halfW, halfH);
+          paperGrad.addColorStop(0, "#ffffff");
+          paperGrad.addColorStop(0.6, "#fefce8");
+          paperGrad.addColorStop(1, "#fef3c7");
+          gCtx.fillStyle = paperGrad;
+
+          // Dog-eared top right corner
+          const dogEar = 22;
+          gCtx.beginPath();
+          gCtx.moveTo(-halfW, -halfH);
+          gCtx.lineTo(halfW - dogEar, -halfH);
+          gCtx.lineTo(halfW, -halfH + dogEar);
+          gCtx.lineTo(halfW, halfH);
+          gCtx.lineTo(-halfW, halfH);
+          gCtx.closePath();
+          gCtx.fill();
+
+          gCtx.shadowBlur = 0;
+          gCtx.strokeStyle = "#cbd5e1";
+          gCtx.lineWidth = 2;
+          gCtx.stroke();
+
+          // Folded corner triangle
+          gCtx.fillStyle = "#e2e8f0";
+          gCtx.beginPath();
+          gCtx.moveTo(halfW - dogEar, -halfH);
+          gCtx.lineTo(halfW - dogEar, -halfH + dogEar);
+          gCtx.lineTo(halfW, -halfH + dogEar);
+          gCtx.closePath();
+          gCtx.fill();
+          gCtx.strokeStyle = "#94a3b8";
+          gCtx.lineWidth = 1.5;
+          gCtx.stroke();
+
+          // Gold paperclip on top edge
+          gCtx.save();
+          gCtx.translate(-halfW + 28, -halfH + 2);
+          gCtx.strokeStyle = "#f59e0b";
+          gCtx.lineWidth = 3;
+          gCtx.beginPath();
+          gCtx.roundRect(-6, -8, 12, 28, 6);
+          gCtx.stroke();
+          gCtx.strokeStyle = "#fbbf24";
+          gCtx.lineWidth = 1.8;
+          gCtx.stroke();
+          gCtx.restore();
+
+          // Top Header: Court Docket
+          gCtx.fillStyle = "#64748b";
+          gCtx.font = "bold 9px 'Courier New', monospace";
+          gCtx.textAlign = "left";
+          gCtx.fillText("CASE 15-CV-07433 // EXHIBIT 47-B", -halfW + 16, -halfH + 24);
+          gCtx.fillText("U.S. DISTRICT COURT • SOUTHERN DISTRICT OF NY", -halfW + 16, -halfH + 36);
+
+          // Bold Red "UNSEALED" rubber stamp
+          gCtx.save();
+          gCtx.translate(halfW - 48, -halfH + 34);
+          gCtx.rotate(-0.14);
+          gCtx.fillStyle = "rgba(239, 68, 68, 0.15)";
+          gCtx.fillRect(-38, -12, 76, 24);
+          gCtx.strokeStyle = "#dc2626";
+          gCtx.lineWidth = 2.5;
+          gCtx.strokeRect(-38, -12, 76, 24);
+          gCtx.fillStyle = "#dc2626";
+          gCtx.font = "900 13px -apple-system, sans-serif";
+          gCtx.textAlign = "center";
+          gCtx.textBaseline = "middle";
+          gCtx.fillText("UNSEALED", 0, 0);
+          gCtx.restore();
+
+          // Divider Line
+          gCtx.strokeStyle = "#cbd5e1";
+          gCtx.lineWidth = 1;
+          gCtx.beginPath();
+          gCtx.moveTo(-halfW + 14, -halfH + 48);
+          gCtx.lineTo(halfW - 14, -halfH + 48);
+          gCtx.stroke();
+
+          // Manifest Typewriter Text & Redactions
+          gCtx.fillStyle = "#1e293b";
+          gCtx.font = "bold 10px 'Courier New', monospace";
+          gCtx.textAlign = "left";
+          gCtx.textBaseline = "middle";
+
+          // Row 1
+          gCtx.fillText("FLIGHT LOG: PBI ✈️ ST. THOMAS", -halfW + 16, -halfH + 62);
+          gCtx.fillStyle = "#0f172a";
+          gCtx.fillRect(-halfW + 16, -halfH + 72, pw - 32, 10); // Heavy redaction bar
+
+          // Row 2: Visible Donald Trump passenger entry
+          gCtx.fillStyle = "#1e293b";
+          gCtx.fillText("PASSENGER: DONALD J. TRUMP", -halfW + 16, -halfH + 92);
+          gCtx.fillStyle = "#0f172a";
+          gCtx.fillRect(halfW - 52, -halfH + 87, 36, 10); // Redact status
+
+          // Row 3: Redacted guests
+          gCtx.fillStyle = "#1e293b";
+          gCtx.fillText("VIP CABIN GUEST: ", -halfW + 16, -halfH + 110);
+          gCtx.fillStyle = "#0f172a";
+          gCtx.fillRect(-halfW + 16, -halfH + 118, pw - 45, 10); // Redaction bar
+
+          // Row 4: Pilot Notes
+          gCtx.fillStyle = "#1e293b";
+          gCtx.fillText("CREW NOTES: CATERING SECURED", -halfW + 16, -halfH + 138);
+          gCtx.fillStyle = "#0f172a";
+          gCtx.fillRect(-halfW + 16, -halfH + 146, pw - 60, 9); // Redaction bar
+
+          // Red Notary / Seal Stamp in Bottom Right
+          gCtx.save();
+          gCtx.translate(halfW - 28, halfH - 24);
+          gCtx.beginPath();
+          gCtx.arc(0, 0, 16, 0, Math.PI * 2);
+          gCtx.strokeStyle = "rgba(220, 38, 38, 0.7)";
+          gCtx.lineWidth = 1.8;
+          gCtx.stroke();
+          gCtx.fillStyle = "#dc2626";
+          gCtx.font = "bold 7px sans-serif";
+          gCtx.textAlign = "center";
+          gCtx.textBaseline = "middle";
+          gCtx.fillText("VERIFIED", 0, -3);
+          gCtx.fillText("DOCKET", 0, 5);
+          gCtx.restore();
         }
 
         gCtx.restore();
@@ -9277,6 +9558,7 @@
         nextCanInterval = 2;
         runDewsCollected = 0;
         runBurgersCollected = 0;
+        runEpsteinFilesCollected = 0;
         runPipesCleared = 0;
         score = 0;
 
