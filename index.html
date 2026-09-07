@@ -1930,6 +1930,17 @@
             { id: "cowboy_intro", url: "assets/kid_rock_cowboy_intro.mp3", text: "🌵 COWBOY...", buffer: null, audioEl: null }
           ];
           this.kidRockLoading = false;
+
+          // Iconic JD Vance Dayton Ohio Emo & Donut Shop soundbite pool
+          this.jdClips = [
+            { id: "ohio_emo_riff", url: "assets/jd_ohio_emo_riff.mp3", text: "🎸 OHIO IS FOR LOVERS!", buffer: null, audioEl: null },
+            { id: "ohio_black_my_eyes", url: "assets/jd_ohio_black_my_eyes.mp3", text: "👁️ BLACK MY EYES!", buffer: null, audioEl: null },
+            { id: "whatever_makes_sense", url: "assets/jd_whatever_makes_sense.mp3", text: "🍩 WHATEVER MAKES SENSE!", buffer: null, audioEl: null },
+            { id: "okay_good", url: "assets/jd_okay_good.mp3", text: "👌 OKAY, GOOD.", buffer: null, audioEl: null },
+            { id: "diet_dew_racist", url: "assets/jd_diet_dew_racist.mp3", text: "🥤 RACIST SODA?!", buffer: null, audioEl: null }
+          ];
+          this.jdLoading = false;
+
           this.activeVoiceSource = null;
           this.activeVoiceGain = null;
           this.activeVoiceAudioEl = null;
@@ -1947,6 +1958,7 @@
             this.ctx.resume();
           }
           this.preloadKidRockClips();
+          this.preloadJDClips();
         }
 
         preloadKidRockClips() {
@@ -1954,7 +1966,6 @@
           this.kidRockLoading = true;
           this.kidRockClips.forEach(clip => {
             if (clip.buffer) return;
-            // Preload via fetch & AudioContext decodeAudioData for zero-latency Web Audio playback
             if (this.ctx && typeof fetch === "function") {
               fetch(clip.url)
                 .then(res => {
@@ -1966,7 +1977,38 @@
                   clip.buffer = decodedAudio;
                 })
                 .catch(() => {
-                  // Fallback to HTML5 Audio element for offline or file:// protocol
+                  try {
+                    const a = new Audio(clip.url);
+                    a.preload = "auto";
+                    clip.audioEl = a;
+                  } catch (e) {}
+                });
+            } else {
+              try {
+                const a = new Audio(clip.url);
+                a.preload = "auto";
+                clip.audioEl = a;
+              } catch (e) {}
+            }
+          });
+        }
+
+        preloadJDClips() {
+          if (this.jdLoading) return;
+          this.jdLoading = true;
+          this.jdClips.forEach(clip => {
+            if (clip.buffer) return;
+            if (this.ctx && typeof fetch === "function") {
+              fetch(clip.url)
+                .then(res => {
+                  if (!res.ok) throw new Error("Audio fetch failed: " + res.status);
+                  return res.arrayBuffer();
+                })
+                .then(arrayBuffer => this.ctx.decodeAudioData(arrayBuffer))
+                .then(decodedAudio => {
+                  clip.buffer = decodedAudio;
+                })
+                .catch(() => {
                   try {
                     const a = new Audio(clip.url);
                     a.preload = "auto";
@@ -2167,6 +2209,77 @@
             }
           } catch (e) {
             this.playGuitarRiff();
+            return null;
+          }
+        }
+
+        playJDVoice() {
+          // Plays a random JD Vance soundbite (Hawthorne Heights emo guitar/screamo, Holt's donuts, Diet Mountain Dew) with zero latency
+          try {
+            if (!this.ctx) {
+              this.init();
+            }
+            if (!this.jdLoading) {
+              this.preloadJDClips();
+            }
+
+            // Immediately stop previous voice source to prevent audio overlap
+            if (this.activeVoiceSource) {
+              try {
+                if (this.activeVoiceGain && this.ctx) {
+                  this.activeVoiceGain.gain.setValueAtTime(this.activeVoiceGain.gain.value, this.ctx.currentTime);
+                  this.activeVoiceGain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
+                }
+                this.activeVoiceSource.stop(this.ctx ? this.ctx.currentTime + 0.05 : 0);
+              } catch (e) {}
+              this.activeVoiceSource = null;
+            }
+            if (this.activeVoiceAudioEl) {
+              try {
+                this.activeVoiceAudioEl.pause();
+                this.activeVoiceAudioEl.currentTime = 0;
+              } catch (e) {}
+              this.activeVoiceAudioEl = null;
+            }
+
+            const randomIndex = Math.floor(Math.random() * this.jdClips.length);
+            const clip = this.jdClips[randomIndex];
+
+            if (this.ctx && clip.buffer) {
+              const source = this.ctx.createBufferSource();
+              const gain = this.ctx.createGain();
+              source.buffer = clip.buffer;
+              gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+              source.connect(gain);
+              gain.connect(this.ctx.destination);
+              source.start(0);
+
+              this.activeVoiceSource = source;
+              this.activeVoiceGain = gain;
+              const durationMs = (clip.buffer.duration || 2.5) * 1000;
+              this.activeVoiceEndTime = performance.now() + durationMs;
+
+              source.onended = () => {
+                if (this.activeVoiceSource === source) {
+                  this.activeVoiceSource = null;
+                  this.activeVoiceGain = null;
+                }
+              };
+              return clip;
+            } else if (clip.audioEl) {
+              clip.audioEl.currentTime = 0;
+              clip.audioEl.volume = 0.85;
+              clip.audioEl.play().catch(() => {});
+              this.activeVoiceAudioEl = clip.audioEl;
+              this.activeVoiceEndTime = performance.now() + (clip.audioEl.duration || 3.0) * 1000;
+              return clip;
+            } else {
+              // Fallback to score chime if clip still buffering
+              this.playScore();
+              return clip;
+            }
+          } catch (e) {
+            this.playScore();
             return null;
           }
         }
@@ -4126,6 +4239,10 @@
       function updatePipes(dt) {
         if (currentState !== STATE.PLAYING || currentState === STATE.START || currentState === "START" || (typeof gameState !== "undefined" && (gameState === "START" || gameState.state === "START"))) return;
 
+        const activeChar = (typeof gameState !== "undefined" && gameState.selectedCharacterId && CHARACTER_REGISTRY[gameState.selectedCharacterId])
+          ? gameState.selectedCharacterId
+          : (typeof selectedCharacter !== "undefined" ? selectedCharacter : "jd");
+
         for (let i = 0; i < pipes.length; i++) {
           const p = pipes[i];
           p.x -= PIPE_SPEED * dt;
@@ -4139,7 +4256,7 @@
             runPipesCleared++;
             score++;
 
-            // Themed Sound Stabs & Kid Rock Catchphrase Shout
+            // Themed Sound Stabs & Character Audio Shoutouts
             if (p.obstacleType === "kid_rock") {
               const playedClip = sfx.playKidRockVoice();
               const phraseText = (playedClip && playedClip.text) ? playedClip.text : "🎸 BAWITDABA!";
@@ -4150,6 +4267,17 @@
                 duration: 1500,
                 text: phraseText,
                 isKidRock: true
+              });
+            } else if (activeChar === "jd" && (!sfx || !sfx.isVoicePlaying()) && (runPipesCleared % 2 === 0 || Math.random() < 0.40)) {
+              const playedClip = sfx.playJDVoice();
+              const phraseText = (playedClip && playedClip.text) ? playedClip.text : "🎸 OHIO IS FOR LOVERS!";
+              floatingPopups.push({
+                x: bird.x,
+                y: Math.max(70, bird.y - 25),
+                startTime: performance.now(),
+                duration: 1600,
+                text: phraseText,
+                isJDEmo: true
               });
             } else {
               sfx.playScore();
@@ -5189,6 +5317,17 @@
             rockGrad.addColorStop(0.75, "#f97316");
             rockGrad.addColorStop(1, "#dc2626");
             ctx.fillStyle = rockGrad;
+          } else if (p.isJDEmo) {
+            // JD Vance Dayton Ohio Emo & Donut Shop styling: deep eyeliner plum stroke with hot lilac / cyan / sky gradient
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "#1e1b4b";
+            ctx.strokeText(popupText, 0, 0);
+            const emoGrad = ctx.createLinearGradient(0, -10, 0, 10);
+            emoGrad.addColorStop(0, "#f5d0fe");
+            emoGrad.addColorStop(0.35, "#c084fc");
+            emoGrad.addColorStop(0.75, "#38bdf8");
+            emoGrad.addColorStop(1, "#0284c7");
+            ctx.fillStyle = emoGrad;
           } else if (p.isMilk) {
             // Shadow stroke
             ctx.lineWidth = 4;
@@ -9990,51 +10129,58 @@
         // Clear canvas
         ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
-        // Handle screen shake (e.g. Fresh Pampers shield smashing through obstacle)
         let shaken = false;
-        if (screenShakeTimer > 0) {
-          screenShakeTimer -= elapsed;
-          const shakeMag = Math.min(8, (screenShakeTimer / 300) * 8);
-          const shakeX = (Math.random() - 0.5) * 2 * shakeMag;
-          const shakeY = (Math.random() - 0.5) * 2 * shakeMag;
-          ctx.save();
-          ctx.translate(shakeX, shakeY);
-          shaken = true;
-        }
+        try {
+          if (screenShakeTimer > 0) {
+            screenShakeTimer -= elapsed;
+            const shakeMag = Math.min(8, (screenShakeTimer / 300) * 8);
+            const shakeX = (Math.random() - 0.5) * 2 * shakeMag;
+            const shakeY = (Math.random() - 0.5) * 2 * shakeMag;
+            ctx.save();
+            ctx.translate(shakeX, shakeY);
+            shaken = true;
+          }
 
-        // Update physics & positions
-        bird.update(dt);
-        updatePipes(dt);
-        updateCollectibles(dt);
-        checkCollisions();
+          // Update physics & positions
+          bird.update(dt);
+          updatePipes(dt);
+          updateCollectibles(dt);
+          checkCollisions();
 
-        // Draw scene layers in order
-        updateAndDrawBackground(dt);
-        drawPipes();
-        drawCollectibles();
-        updateAndDrawGround(dt);
-        bird.draw();
-        drawFloatingPopups();
-        updateAndDrawParticles(dt);
+          // Draw scene layers in order
+          updateAndDrawBackground(dt);
+          drawPipes();
+          drawCollectibles();
+          updateAndDrawGround(dt);
+          bird.draw();
+          drawFloatingPopups();
+          updateAndDrawParticles(dt);
 
-        // UI layers
-        if (currentState === STATE.START) {
-          drawStartUI();
-        } else if (currentState === STATE.PLAYING) {
-          drawScoreUI();
-        } else if (currentState === STATE.GAMEOVER) {
-          drawGameOverUI();
-        }
-        drawCanvasAchievementToast(dt);
+          // UI layers
+          if (currentState === STATE.START) {
+            drawStartUI();
+          } else if (currentState === STATE.PLAYING) {
+            drawScoreUI();
+          } else if (currentState === STATE.GAMEOVER) {
+            drawGameOverUI();
+          }
+          drawCanvasAchievementToast(dt);
 
-        if (shaken) {
-          ctx.restore();
-        }
+          if (shaken) {
+            ctx.restore();
+            shaken = false;
+          }
 
-        // Animate Cartoon Showcase close-up preview if open
-        if (typeof galleryOpen !== "undefined" && galleryOpen) {
-          galleryAnimTime += dt * 0.016;
-          renderGalleryStage();
+          // Animate Cartoon Showcase close-up preview if open
+          if (typeof galleryOpen !== "undefined" && galleryOpen) {
+            galleryAnimTime += dt * 0.016;
+            renderGalleryStage();
+          }
+        } catch (loopErr) {
+          console.error("Critical gameLoop error caught gracefully:", loopErr);
+          if (shaken) {
+            try { ctx.restore(); } catch (e) {}
+          }
         }
 
         requestAnimationFrame(gameLoop);
