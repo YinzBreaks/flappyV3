@@ -6499,6 +6499,10 @@
         if (!isCharacterUnlocked(charId)) return false;
         selectedCharacter = charId;
         gameState.selectedCharacterId = charId;
+        const rIdx = ROSTER_IDS.indexOf(charId);
+        if (rIdx !== -1) {
+          carouselIndex = rIdx;
+        }
         try {
           localStorage.setItem("selectedCharacter", charId);
           localStorage.setItem("selectedCharacterId", charId);
@@ -8590,14 +8594,7 @@
         }
       }
 
-      function resetToStartState() {
-        currentState = STATE.START;
-        if (typeof gameState === "object" && gameState) {
-          gameState.state = "START";
-        }
-        if (typeof window !== "undefined") {
-        }
-
+      function clearRunState() {
         // Explicitly reset player state
         player.y = 350;
         player.velocity = 0;
@@ -8645,6 +8642,15 @@
           clearTimeout(gameOverTimerId);
           gameOverTimerId = null;
         }
+      }
+
+      function resetToStartState() {
+        currentState = STATE.START;
+        if (typeof gameState === "object" && gameState) {
+          gameState.state = "START";
+        }
+
+        clearRunState();
 
         // The character carousel should be centered, interactive, and unobstructed by old run remnants
         showCarousel();
@@ -8654,7 +8660,30 @@
         // Enforce a 350ms cooldown on GAMEOVER before restart inputs are accepted, preventing a death tap from instantly triggering a restart
         if (performance.now() - gameOverTime < 350) return;
 
-        resetToStartState();
+        sfx.init();
+
+        const activeChar = (typeof gameState !== "undefined" && gameState.selectedCharacterId && CHARACTER_REGISTRY[gameState.selectedCharacterId])
+          ? gameState.selectedCharacterId
+          : (typeof selectedCharacter !== "undefined" ? selectedCharacter : "jd");
+        if (!isCharacterUnlocked(activeChar)) {
+          selectCharacter("jd");
+        } else {
+          selectCharacter(activeChar);
+        }
+
+        clearRunState();
+
+        // Hide carousel so it does not obstruct gameplay
+        hideCarousel();
+
+        // Immediately transition into flight (PLAYING state)
+        currentState = STATE.PLAYING;
+        if (typeof gameState === "object" && gameState) {
+          gameState.state = "PLAYING";
+        }
+
+        initPipes();
+        bird.flap();
       }
 
       // Alias resetGame
@@ -8709,27 +8738,31 @@
         });
       }
 
+      let lastRestartTrigger = 0;
       if (restartBtnEl) {
         ["pointerdown", "click"].forEach(evt => {
           restartBtnEl.addEventListener(evt, function (e) {
             e.preventDefault();
             e.stopPropagation();
-            if (evt === "pointerdown" || !window.PointerEvent) {
-              restartGame();
-            }
+            const now = performance.now();
+            if (now - lastRestartTrigger < 250) return;
+            lastRestartTrigger = now;
+            restartGame();
           });
         });
       }
 
+      let lastChangeCharTrigger = 0;
       const changeCharBtnEl = document.getElementById("change-char-btn");
       if (changeCharBtnEl) {
         ["pointerdown", "click"].forEach(evt => {
           changeCharBtnEl.addEventListener(evt, function (e) {
             e.preventDefault();
             e.stopPropagation();
-            if (evt === "pointerdown" || !window.PointerEvent) {
-              resetToStartState();
-            }
+            const now = performance.now();
+            if (now - lastChangeCharTrigger < 250) return;
+            lastChangeCharTrigger = now;
+            resetToStartState();
           });
         });
       }
