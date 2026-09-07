@@ -748,6 +748,27 @@
       transform: scale(0.95);
     }
 
+    .start-action-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 3px;
+      flex-wrap: wrap;
+    }
+
+    .btn-achievements-trigger {
+      border-color: rgba(250, 204, 21, 0.75);
+      color: #fde047;
+    }
+
+    .btn-achievements-trigger:hover {
+      border-color: #facc15;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.75), 0 0 16px rgba(250, 204, 21, 0.5);
+      color: #ffffff;
+    }
+
     .btn-gallery-gameover {
       background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
       color: #fde047;
@@ -758,6 +779,19 @@
     .btn-gallery-gameover:hover {
       border-color: #facc15;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 14px rgba(250, 204, 21, 0.45);
+      filter: brightness(1.1);
+    }
+
+    .btn-achievements-gameover {
+      background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+      color: #fde047;
+      border: 1.5px solid rgba(250, 204, 21, 0.55);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 10px rgba(250, 204, 21, 0.25);
+    }
+
+    .btn-achievements-gameover:hover {
+      border-color: #facc15;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(250, 204, 21, 0.5);
       filter: brightness(1.1);
     }
 
@@ -1179,6 +1213,383 @@
       background: rgba(51, 65, 85, 0.9);
       color: #ffffff;
     }
+
+    /* --- ACHIEVEMENTS VAULT MODAL --- */
+    .achievements-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(8, 12, 24, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 125;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+      transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .achievements-modal.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1);
+    }
+
+    .achievements-card {
+      width: 100%;
+      max-width: 388px;
+      height: 94%;
+      max-height: 640px;
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border: 1.5px solid rgba(251, 191, 36, 0.35);
+      border-radius: 18px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 24px rgba(245, 158, 11, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 14px 14px 12px;
+      gap: 10px;
+      position: relative;
+    }
+
+    .achievements-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .achievements-title-wrap {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .achievements-title {
+      font-family: 'Impact', 'Trebuchet MS', -apple-system, sans-serif;
+      font-size: 19px;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: linear-gradient(180deg, #fef08a 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+    }
+
+    .achievements-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+      margin-top: 1px;
+    }
+
+    .achievements-close-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #cbd5e1;
+      font-size: 15px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+      flex-shrink: 0;
+    }
+
+    .achievements-close-btn:hover {
+      background: rgba(239, 68, 68, 0.35);
+      border-color: #ef4444;
+      color: #ffffff;
+      transform: rotate(90deg);
+    }
+
+    .achievements-progress-wrap {
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .achievements-progress-track {
+      width: 100%;
+      height: 7px;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .achievements-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+      border-radius: 999px;
+      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+
+    .achievements-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .achievements-list::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .achievements-list::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 4px;
+    }
+
+    .achievements-list::-webkit-scrollbar-thumb {
+      background: rgba(251, 191, 36, 0.4);
+      border-radius: 4px;
+    }
+
+    .achievement-card {
+      display: flex;
+      gap: 11px;
+      padding: 10px;
+      border-radius: 13px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      position: relative;
+      text-align: left;
+    }
+
+    .achievement-card.unlocked {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(20, 29, 46, 0.95) 100%);
+      border: 1.5px solid rgba(250, 204, 21, 0.45);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 12px rgba(250, 204, 21, 0.12);
+    }
+
+    .achievement-card.unlocked:hover {
+      border-color: #facc15;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 16px rgba(250, 204, 21, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .achievement-card.locked {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      opacity: 0.85;
+    }
+
+    .achievement-icon-wrap {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .achievement-icon-wrap.unlocked {
+      background: rgba(245, 158, 11, 0.18);
+      border: 1.5px solid rgba(245, 158, 11, 0.55);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+    }
+
+    .achievement-icon-wrap.locked {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      filter: grayscale(0.85);
+    }
+
+    .achievement-icon-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      font-size: 9px;
+      font-weight: 900;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .achievement-card.unlocked .achievement-icon-badge {
+      background: #22c55e;
+      color: #ffffff;
+      border: 1.5px solid #0f172a;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .achievement-card.locked .achievement-icon-badge {
+      background: #475569;
+      color: #cbd5e1;
+      border: 1.5px solid #0f172a;
+      font-size: 8px;
+    }
+
+    .achievement-details {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .achievement-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .achievement-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .achievement-card.unlocked .achievement-title {
+      color: #facc15;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    }
+
+    .achievement-card.locked .achievement-title {
+      color: #94a3b8;
+    }
+
+    .achievement-status-badge {
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .badge-unlocked {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .badge-locked {
+      background: rgba(100, 116, 139, 0.2);
+      color: #94a3b8;
+      border: 1px solid rgba(100, 116, 139, 0.3);
+    }
+
+    .achievement-desc {
+      font-size: 11px;
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+
+    .achievement-card.unlocked .achievement-desc {
+      color: #cbd5e1;
+    }
+
+    .achievement-card.locked .achievement-desc {
+      color: #64748b;
+    }
+
+    .achievement-criteria {
+      margin-top: 4px;
+      font-size: 10px;
+      line-height: 1.3;
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+
+    .achievement-card.unlocked .achievement-criteria {
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .achievement-card.locked .achievement-criteria {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .criteria-label {
+      font-weight: 800;
+      letter-spacing: 0.4px;
+      font-size: 9px;
+      margin-right: 3px;
+    }
+
+    .achievement-card.unlocked .criteria-label {
+      color: #4ade80;
+    }
+
+    .achievement-card.locked .criteria-label {
+      color: #fbbf24;
+    }
+
+    .criteria-text {
+      font-size: 10px;
+    }
+
+    .achievement-card.unlocked .criteria-text {
+      color: #a7f3d0;
+    }
+
+    .achievement-card.locked .criteria-text {
+      color: #94a3b8;
+    }
+
+    .achievements-footer {
+      width: 100%;
+      flex-shrink: 0;
+      padding-top: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .achievements-action-btn {
+      width: 100%;
+      padding: 9px 16px;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      border-radius: 12px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #cbd5e1;
+    }
+
+    .achievements-action-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -1208,10 +1619,16 @@
       <div class="character-info">
         <div id="carousel-char-name" class="character-name">Pwease Pway JD!</div>
         <div id="carousel-status-pill" class="character-status-pill selected">✓ ACTIVE FLAPPER</div>
-        <button id="open-gallery-btn" class="btn-gallery-trigger" type="button" aria-label="Open Cartoon Showcase">
-          <span>🔍</span>
-          <span>CARTOON SHOWCASE</span>
-        </button>
+        <div class="start-action-row">
+          <button id="open-gallery-btn" class="btn-gallery-trigger" type="button" aria-label="Open Cartoon Showcase">
+            <span>🔍</span>
+            <span>SHOWCASE</span>
+          </button>
+          <button id="open-achievements-btn" class="btn-gallery-trigger btn-achievements-trigger" type="button" aria-label="Open Achievements Vault">
+            <span>🏆</span>
+            <span id="start-ach-badge">VAULT (<span id="start-ach-counter">0/7</span>)</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1251,6 +1668,9 @@
         <div class="actions-group">
           <button id="restart-btn" class="btn btn-primary" type="button">FLAP AGAIN</button>
           <button id="change-char-btn" class="btn btn-secondary" type="button">SELECT CHARACTER</button>
+          <button id="gameover-achievements-btn" class="btn btn-secondary btn-achievements-gameover" type="button">
+            🏆 TROPHY VAULT (<span id="gameover-ach-counter">0/7</span>)
+          </button>
           <button id="gameover-gallery-btn" class="btn btn-secondary btn-gallery-gameover" type="button">
             🔍 INSPECT CARTOONS
           </button>
@@ -1321,6 +1741,31 @@
         <div class="gallery-footer">
           <button id="gallery-select-char-btn" class="gallery-action-btn btn-gallery-select" type="button">✓ EQUIP THIS FLAPPER</button>
           <button id="gallery-back-btn" class="gallery-action-btn btn-gallery-close" type="button">BACK TO GAME</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements Vault Modal -->
+    <div id="achievements-modal" class="achievements-modal" style="display: none;">
+      <div id="achievements-card" class="achievements-card">
+        <div class="achievements-header">
+          <div class="achievements-title-wrap">
+            <span class="achievements-title">TROPHY VAULT</span>
+            <span id="achievements-subtitle" class="achievements-subtitle">0 / 7 UNLOCKED (0%)</span>
+          </div>
+          <button id="achievements-close-btn" class="achievements-close-btn" type="button" aria-label="Close Achievements">✕</button>
+        </div>
+
+        <div class="achievements-progress-wrap">
+          <div class="achievements-progress-track">
+            <div id="achievements-progress-bar" class="achievements-progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div id="achievements-list" class="achievements-list"></div>
+
+        <div class="achievements-footer">
+          <button id="achievements-back-btn" class="achievements-action-btn" type="button">BACK TO GAME</button>
         </div>
       </div>
     </div>
@@ -2047,37 +2492,51 @@
         couch_potato: {
           id: "couch_potato",
           title: "Couch Potato",
-          desc: "Crash on obstacle 1 with 0 points."
+          desc: "Crash on obstacle 1 with 0 points.",
+          criteria: "Crash immediately on obstacle 1 with 0 points.",
+          icon: "🛋️"
         },
         dew_diligence: {
           id: "dew_diligence",
           title: "Dew Diligence",
-          desc: "Collect 3 cans of Dew in a single run."
+          desc: "Collect 3 cans of Dew in a single run.",
+          criteria: "Collect 3 Diet Mountain Dew cans in a single flight.",
+          icon: "🥤"
         },
         double_digits: {
           id: "double_digits",
           title: "Hillbilly Tenacity",
-          desc: "Reach a score of 10."
+          desc: "Reach a score of 10.",
+          criteria: "Fly past 10 obstacles to enter double digits.",
+          icon: "⭐"
         },
         worm_whisperer: {
           id: "worm_whisperer",
           title: "Mind Over Matter",
-          desc: "Collect 15 lifetime Dew cans (Unlocks Bobby)."
+          desc: "Collect 15 lifetime Dew cans (Unlocks Bobby).",
+          criteria: "Collect 15 lifetime Dew cans across all runs (Unlocks Bobby).",
+          icon: "🧠"
         },
         nappy_nurse: {
           id: "nappy_nurse",
           title: "The Caretaker's Ransom",
-          desc: "Nurse Natalia dispatched: Emergency change on lane 4!"
+          desc: "Nurse Natalia dispatched: Emergency change on lane 4!",
+          criteria: "Reach a score of 20 while playing as Diaper Don.",
+          icon: "🍼"
         },
         golden_diet: {
           id: "golden_diet",
           title: "Executive Drive-Thru",
-          desc: "High-level bilateral diplomatic catering secured."
+          desc: "High-level bilateral diplomatic catering secured.",
+          criteria: "Chomp 5 Big Macs in a single flight as Diaper Don.",
+          icon: "🍔"
         },
         witch_hunt: {
           id: "witch_hunt",
           title: "STOP THE COUNT!",
-          desc: "Fake news collision. Arch was clearly out of bounds."
+          desc: "Fake news collision. Arch was clearly out of bounds.",
+          criteria: "Crash on obstacle 1 with 0 points while playing as Diaper Don.",
+          icon: "📢"
         }
       };
 
@@ -2104,6 +2563,9 @@
         sfx.init();
         sfx.playUnlockChime();
         showAchievementToast(ACHIEVEMENTS[id]);
+        if (typeof updateAchievementsBadges === "function") {
+          updateAchievementsBadges();
+        }
       }
 
       function showAchievementToast(ach) {
@@ -8391,6 +8853,146 @@
         initGalleryEvents();
       }
 
+      // --- ACHIEVEMENTS VAULT & PROGRESSION VIEWER ---
+      let achievementsOpen = false;
+
+      function updateAchievementsBadges() {
+        const allAchKeys = Object.keys(ACHIEVEMENTS);
+        const totalCount = allAchKeys.length;
+        const unlockedList = (progression && Array.isArray(progression.unlockedAchievements))
+          ? progression.unlockedAchievements
+          : [];
+        const unlockedCount = allAchKeys.filter(k => unlockedList.includes(k)).length;
+        const pct = totalCount > 0 ? Math.round((unlockedCount / totalCount) * 100) : 0;
+
+        const startCounterEl = document.getElementById("start-ach-counter");
+        const gameoverCounterEl = document.getElementById("gameover-ach-counter");
+        const subtitleEl = document.getElementById("achievements-subtitle");
+        const progressFillEl = document.getElementById("achievements-progress-bar");
+
+        if (startCounterEl) startCounterEl.textContent = `${unlockedCount}/${totalCount}`;
+        if (gameoverCounterEl) gameoverCounterEl.textContent = `${unlockedCount}/${totalCount}`;
+        if (subtitleEl) subtitleEl.textContent = `${unlockedCount} / ${totalCount} UNLOCKED (${pct}%)`;
+        if (progressFillEl) progressFillEl.style.width = `${pct}%`;
+      }
+
+      function renderAchievementsList() {
+        updateAchievementsBadges();
+        const listEl = document.getElementById("achievements-list");
+        if (!listEl) return;
+
+        listEl.innerHTML = "";
+        const allAchKeys = Object.keys(ACHIEVEMENTS);
+        const unlockedList = (progression && Array.isArray(progression.unlockedAchievements))
+          ? progression.unlockedAchievements
+          : [];
+
+        allAchKeys.forEach(key => {
+          const ach = ACHIEVEMENTS[key];
+          const isUnlocked = unlockedList.includes(ach.id);
+
+          const card = document.createElement("div");
+          card.className = `achievement-card ${isUnlocked ? "unlocked" : "locked"}`;
+
+          card.innerHTML = `
+            <div class="achievement-icon-wrap ${isUnlocked ? "unlocked" : "locked"}">
+              <span class="achievement-icon">${ach.icon || "🏆"}</span>
+              <span class="achievement-icon-badge">${isUnlocked ? "✓" : "🔒"}</span>
+            </div>
+            <div class="achievement-details">
+              <div class="achievement-title-row">
+                <span class="achievement-title">${ach.title}</span>
+                <span class="achievement-status-badge ${isUnlocked ? "badge-unlocked" : "badge-locked"}">
+                  ${isUnlocked ? "UNLOCKED" : "LOCKED"}
+                </span>
+              </div>
+              <div class="achievement-desc">${ach.desc}</div>
+              <div class="achievement-criteria">
+                <span class="criteria-label">${isUnlocked ? "STATUS:" : "HOW TO EARN:"}</span>
+                <span class="criteria-text">${isUnlocked ? "Earned and recorded in Trophy Vault!" : (ach.criteria || ach.desc)}</span>
+              </div>
+            </div>
+          `;
+          listEl.appendChild(card);
+        });
+      }
+
+      function openAchievementsModal() {
+        achievementsOpen = true;
+        renderAchievementsList();
+        const modalEl = document.getElementById("achievements-modal");
+        if (modalEl) {
+          modalEl.style.display = "flex";
+          void modalEl.offsetWidth; // Force reflow
+          modalEl.classList.add("visible");
+        }
+        sfx.init();
+        sfx.playClick();
+      }
+
+      function closeAchievementsModal() {
+        achievementsOpen = false;
+        const modalEl = document.getElementById("achievements-modal");
+        if (modalEl) {
+          modalEl.classList.remove("visible");
+          setTimeout(() => {
+            if (!achievementsOpen) modalEl.style.display = "none";
+          }, 250);
+        }
+        sfx.init();
+        sfx.playClick();
+      }
+
+      function initAchievementsUI() {
+        const modalEl = document.getElementById("achievements-modal");
+        const openStartBtn = document.getElementById("open-achievements-btn");
+        const openGameOverBtn = document.getElementById("gameover-achievements-btn");
+        const closeBtn = document.getElementById("achievements-close-btn");
+        const backBtn = document.getElementById("achievements-back-btn");
+
+        if (modalEl) {
+          ["pointerdown", "mousedown", "touchstart", "click"].forEach(evt => {
+            modalEl.addEventListener(evt, (e) => e.stopPropagation());
+          });
+
+          modalEl.addEventListener("click", (e) => {
+            if (e.target === modalEl) {
+              closeAchievementsModal();
+            }
+          });
+        }
+
+        if (openStartBtn) {
+          openStartBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openAchievementsModal();
+          });
+        }
+
+        if (openGameOverBtn) {
+          openGameOverBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openAchievementsModal();
+          });
+        }
+
+        if (closeBtn) {
+          closeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeAchievementsModal();
+          });
+        }
+
+        if (backBtn) {
+          backBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeAchievementsModal();
+          });
+        }
+
+        updateAchievementsBadges();
+      }
+
       // --- UI & OVERLAYS ---
       function drawStartUI() {
         // Pulsing scale for title
@@ -8555,6 +9157,10 @@
           }
         };
 
+        if (typeof updateAchievementsBadges === "function") {
+          updateAchievementsBadges();
+        }
+
         // Smooth fade-in
         overlayEl.style.display = "flex";
         overlayEl.classList.add("visible");
@@ -8693,6 +9299,10 @@
 
         clearRunState();
 
+        if (typeof updateAchievementsBadges === "function") {
+          updateAchievementsBadges();
+        }
+
         // The character carousel should be centered, interactive, and unobstructed by old run remnants
         showCarousel();
       }
@@ -8815,7 +9425,7 @@
         // If clicking on or inside any interactive UI element, ignore so the element handles its own event
         if (e.target && typeof e.target.closest === "function") {
           const interactive = e.target.closest(
-            "#character-carousel, #gameover-overlay, #gallery-modal, button, a, input, select, textarea, .carousel-btn, .btn, .carousel-preview-card, .character-status-pill, .btn-gallery-trigger, .made-in-usai-badge"
+            "#character-carousel, #gameover-overlay, #gallery-modal, #achievements-modal, button, a, input, select, textarea, .carousel-btn, .btn, .carousel-preview-card, .character-status-pill, .btn-gallery-trigger, .made-in-usai-badge"
           );
           if (interactive) {
             return;
@@ -8829,7 +9439,7 @@
           }
         }
 
-        if (typeof galleryOpen !== "undefined" && galleryOpen) {
+        if ((typeof galleryOpen !== "undefined" && galleryOpen) || (typeof achievementsOpen !== "undefined" && achievementsOpen)) {
           return;
         }
 
@@ -8871,11 +9481,30 @@
           return;
         }
 
+        // Handle keyboard navigation when Achievements Vault modal is open
+        if (typeof achievementsOpen !== "undefined" && achievementsOpen) {
+          if (e.code === "Escape" || e.key === "Escape" || e.code === "KeyT" || e.key === "t" || e.key === "T") {
+            e.preventDefault();
+            closeAchievementsModal();
+            return;
+          }
+          return;
+        }
+
         // 'G' hotkey opens Cartoon Showcase from Start or Game Over screen
         if (e.code === "KeyG" || e.key === "g" || e.key === "G") {
           if (currentState === STATE.START || currentState === "START" || currentState === STATE.GAMEOVER || currentState === "GAMEOVER") {
             e.preventDefault();
             openGallery();
+            return;
+          }
+        }
+
+        // 'T' hotkey opens Trophy Vault from Start or Game Over screen
+        if (e.code === "KeyT" || e.key === "t" || e.key === "T") {
+          if (currentState === STATE.START || currentState === "START" || currentState === STATE.GAMEOVER || currentState === "GAMEOVER") {
+            e.preventDefault();
+            openAchievementsModal();
             return;
           }
         }
@@ -8981,6 +9610,7 @@
       resizeCanvas();
       initCarousel();
       initGallery();
+      initAchievementsUI();
       resetToStartState();
       try { canvas.focus(); } catch (e) {}
       requestAnimationFrame(gameLoop);
