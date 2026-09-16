@@ -2592,12 +2592,12 @@
 
           // Iconic JD Vance Dayton Ohio Emo & Donut Shop soundbite pool (trimmed punchlines)
           this.jdClips = [
-            { id: "okay_good", url: "assets/jd_okay_good.mp3", text: "👌 OKAY, GOOD.", buffer: null, audioEl: null },
+            { id: "okay_good", url: "assets/jd_okay_good.mp3", text: "🍩 A LOT OF GLAZE!", buffer: null, audioEl: null },
             { id: "whatever_makes_sense", url: "assets/jd_whatever_makes_sense.mp3", text: "🍩 WHATEVER MAKES SENSE!", buffer: null, audioEl: null },
             { id: "diet_dew_racist", url: "assets/jd_diet_dew_racist.mp3", text: "🥤 RACIST SODA?!", buffer: null, audioEl: null },
             { id: "forks", url: "assets/jd_forks.mp3", text: "🍴 SO MANY FUCKING FORKS!", buffer: null, audioEl: null },
             { id: "men", url: "assets/jd_men.mp3", text: "🧔 GOOD-LOOKING MEN!", buffer: null, audioEl: null },
-            { id: "ohio_black_my_eyes", url: "assets/jd_ohio_black_my_eyes.mp3", text: "👁️ BLACK MY EYES!", buffer: null, audioEl: null }
+            { id: "ohio_black_my_eyes", url: "assets/jd_ohio_black_my_eyes.mp3", text: "👁️ CUT MY WRISTS & BLACK MY EYES!", buffer: null, audioEl: null }
           ];
           this.jdLoading = false;
 
@@ -2613,12 +2613,12 @@
           ];
           this.donLoading = false;
 
-          // Bobby (RFK Jr.) 100% authentic viral quote soundbite pool (clean 2.5 - 3.3s hooks)
+          // Bobby (RFK Jr.) 100% authentic viral quote soundbite pool (clean 1.7 - 3.3s hooks)
           this.bobbyClips = [
             { id: "brain_worm", url: "assets/bobby_brain_worm.mp3", text: "🪱 BRAIN PARASITE!", buffer: null, audioEl: null },
             { id: "frogs", url: "assets/bobby_frogs.mp3", text: "🐸 FROGS CASTRATED!", buffer: null, audioEl: null },
             { id: "eat_a_dog", url: "assets/bobby_eat_a_dog.mp3", text: "🐶 WOULDN'T EAT A DOG!", buffer: null, audioEl: null },
-            { id: "mcdonalds", url: "assets/bobby_mcdonalds.mp3", text: "🍔 MCDONALD'S & DIET COKE!", buffer: null, audioEl: null },
+            { id: "marjorie", url: "assets/bobby_marjorie.mp3", text: "📢 GOD DAMMIT MARJORIE!", buffer: null, audioEl: null },
             { id: "raccoon", url: "assets/bobby_raccoon.mp3", text: "🦝 ROAD-KILLED RACCOON!", buffer: null, audioEl: null }
           ];
           this.bobbyLoading = false;
@@ -3376,7 +3376,7 @@
         }
 
         playBobbyVoice() {
-          // Plays a random Bobby (RFK Jr.) soundbite (Brain worm, Central Park bear, Cheryl, God damnit Cheryl, Marjorie) with zero latency
+          // Plays a random Bobby (RFK Jr.) soundbite (Brain worm, Frogs, Eat a dog, God damnit Marjorie, Raccoon) with zero latency
           try {
             if (!this.ctx) {
               this.init();
@@ -12753,15 +12753,15 @@
           tag: "Authentic Studio"
         },
         {
-          id: "bobby_mcdonalds",
+          id: "bobby_marjorie",
           char: "bobby",
           charName: "Bobby (RFK Jr.)",
           charIcon: "🏋️",
-          title: "🍔 MCDONALD'S & DIET COKE!",
-          quote: "McDonald's cheeseburgers and Diet Coke",
-          url: "assets/bobby_mcdonalds.mp3",
-          dur: "2.5s",
-          tag: "Authentic Interview"
+          title: "📢 GOD DAMMIT MARJORIE!",
+          quote: "God dammit Marjorie!",
+          url: "assets/bobby_marjorie.mp3",
+          dur: "1.7s",
+          tag: "Authentic Audio"
         },
         {
           id: "bobby_raccoon",
@@ -12791,10 +12791,10 @@
           char: "jd",
           charName: "JD Vance",
           charIcon: "🛋️",
-          title: "👌 OKAY, GOOD.",
-          quote: "Just whatever makes sense... okay, good.",
+          title: "🍩 A LOT OF GLAZE!",
+          quote: "A lot of glaze...",
           url: "assets/jd_okay_good.mp3",
-          dur: "1.5s",
+          dur: "1.1s",
           tag: "Donut Shop"
         },
         {
@@ -12813,10 +12813,10 @@
           char: "jd",
           charName: "JD Vance",
           charIcon: "🛋️",
-          title: "👁️ BLACK MY EYES!",
-          quote: "Hawthorne Heights screamo emo chord",
+          title: "👁️ CUT MY WRISTS & BLACK MY EYES!",
+          quote: "So cut my wrists and black my eyes",
           url: "assets/jd_ohio_black_my_eyes.mp3",
-          dur: "2.5s",
+          dur: "4.0s",
           tag: "Hawthorne Heights"
         },
         {
@@ -12848,7 +12848,7 @@
           charName: "Diaper Don",
           charIcon: "🍼",
           title: "🕺 Y-M-C-A!",
-          quote: "Y-M-C-A! It's fun to stay at the...",
+          quote: "Y-M-C-A!",
           url: "assets/don_ymca.mp3",
           dur: "2.4s",
           tag: "Village People"
@@ -12881,9 +12881,9 @@
           charName: "Diaper Don",
           charIcon: "🍼",
           title: "🇨🇳 CHINA!",
-          quote: "China! China! China!",
+          quote: "China!",
           url: "assets/don_china.mp3",
-          dur: "1.5s",
+          dur: "0.8s",
           tag: "Rally Catchphrase"
         },
         {
