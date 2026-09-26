@@ -17,13 +17,13 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Flappy 2026: The Satirical Flying Odyssey">
   <meta property="og:description" content="Dodge recliners, pharmaceutical syringes, and Kid Rock concert stages as Pwease Pway JD!, Bobby Kennedy Jr., and Diaper Don! Grab Diet Dew and Fresh Pampers shields.">
-  <meta property="og:image" content="assets/portly_jd.png">
+  <meta property="og:image" content="https://resistance-games.com/flapper/assets/portly_jd.png">
 
   <!-- Twitter / X Card -->
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Flappy 2026: The Satirical Flying Odyssey">
   <meta name="twitter:description" content="Can you survive the couch headwinds? Play as Pwease Pway JD!, Bobby &amp; Worm, or Diaper Don in the ultimate satirical arcade flyer.">
-  <meta name="twitter:image" content="assets/portly_jd.png">
+  <meta name="twitter:image" content="https://resistance-games.com/flapper/assets/portly_jd.png">
 
   <!-- Inline Dynamic Cartoon Bird SVG Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232563eb'/%3E%3Cpath d='M8 17 Q16 11 24 17 Q16 23 8 17' fill='%23fbbf24'/%3E%3Ccircle cx='18' cy='14' r='2' fill='%23000'/%3E%3Cpath d='M23 16 L29 18 L23 20 Z' fill='%23f97316'/%3E%3C/svg%3E">
@@ -53,10 +53,11 @@
 
     #game-container {
       position: relative;
-      width: 100%;
-      height: 100%;
-      max-width: 420px;
-      max-height: 750px;
+      /* Width is the only driver so aspect-ratio can hold: setting height too
+         lets the box stretch and resizeCanvas then scales x and y unevenly. */
+      width: min(100%, 420px, calc(100vh * 420 / 750));
+      width: min(100%, 420px, calc(100dvh * 420 / 750));
+      height: auto;
       aspect-ratio: 420 / 750;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
       border-radius: 16px;
@@ -2337,6 +2338,16 @@
     (function () {
       "use strict";
 
+      // Absolute directory of this page, so ASSET_BASE + "assets/x" works whether the arcade
+      // serves us at /flapper, /flapper/, / or /index.html (a bare ASSET_BASE + "assets/x"
+      // from /flapper would resolve to the hub's /assets/x). A <base> tag can't
+      // do this: the arcade CSP sets base-uri 'none'.
+      const ASSET_BASE = (function () {
+        const p = window.location.pathname || "/";
+        if (p.endsWith("/")) return p;
+        return /\.[a-z0-9]+$/i.test(p.slice(p.lastIndexOf("/") + 1)) ? p.slice(0, p.lastIndexOf("/") + 1) : p + "/";
+      })();
+
       // =========================================================================
       // --- SECURITY & ANTI-THEFT: DOMAIN LOCK & ORIGIN VERIFICATION ---
       // =========================================================================
@@ -2346,6 +2357,7 @@
         "0.0.0.0",
         "*.local",
         "*.internal",
+        "*.resistance-games.com",
         "*.vercel.app",
         "*.vercel.sh",
         "*.pages.dev",
@@ -2583,57 +2595,57 @@
           this.ctx = null;
           // Iconic Kid Rock catchphrase soundbite pool (tight, punchy drops & real arena power chord)
           this.kidRockClips = [
-            { id: "bawitdaba", url: "assets/kid_rock_bawitdaba.mp3", text: "🎸 BAWITDABA!", buffer: null, audioEl: null },
-            { id: "my_name_is_kid", url: "assets/kid_rock_my_name_is_kid.mp3", text: "🎤 MY NAME IS KIIIIID!", buffer: null, audioEl: null },
-            { id: "cowboy_intro", url: "assets/kid_rock_cowboy_intro.mp3", text: "🌵 COWBOY...", buffer: null, audioEl: null },
-            { id: "power_chord", url: "assets/guitar_power_chord.mp3", text: "⚡ POWER CHORD!", buffer: null, audioEl: null }
+            { id: "bawitdaba", url: ASSET_BASE + "assets/kid_rock_bawitdaba.mp3", text: "🎸 BAWITDABA!", buffer: null, audioEl: null },
+            { id: "my_name_is_kid", url: ASSET_BASE + "assets/kid_rock_my_name_is_kid.mp3", text: "🎤 MY NAME IS KIIIIID!", buffer: null, audioEl: null },
+            { id: "cowboy_intro", url: ASSET_BASE + "assets/kid_rock_cowboy_intro.mp3", text: "🌵 COWBOY...", buffer: null, audioEl: null },
+            { id: "power_chord", url: ASSET_BASE + "assets/guitar_power_chord.mp3", text: "⚡ POWER CHORD!", buffer: null, audioEl: null }
           ];
           this.kidRockLoading = false;
 
           // Iconic JD Vance Dayton Ohio Emo & Donut Shop soundbite pool (trimmed punchlines)
           this.jdClips = [
-            { id: "okay_good", url: "assets/jd_okay_good.mp3", text: "🍩 A LOT OF GLAZE!", buffer: null, audioEl: null },
-            { id: "whatever_makes_sense", url: "assets/jd_whatever_makes_sense.mp3", text: "🍩 WHATEVER MAKES SENSE!", buffer: null, audioEl: null },
-            { id: "diet_dew_racist", url: "assets/jd_diet_dew_racist.mp3", text: "🥤 RACIST SODA?!", buffer: null, audioEl: null },
-            { id: "forks", url: "assets/jd_forks.mp3", text: "🍴 SO MANY FUCKING FORKS!", buffer: null, audioEl: null },
-            { id: "men", url: "assets/jd_men.mp3", text: "🧔 GOOD-LOOKING MEN!", buffer: null, audioEl: null },
-            { id: "ohio_black_my_eyes", url: "assets/jd_ohio_black_my_eyes.mp3", text: "👁️ CUT MY WRISTS & BLACK MY EYES!", buffer: null, audioEl: null }
+            { id: "okay_good", url: ASSET_BASE + "assets/jd_okay_good.mp3", text: "🍩 A LOT OF GLAZE!", buffer: null, audioEl: null },
+            { id: "whatever_makes_sense", url: ASSET_BASE + "assets/jd_whatever_makes_sense.mp3", text: "🍩 WHATEVER MAKES SENSE!", buffer: null, audioEl: null },
+            { id: "diet_dew_racist", url: ASSET_BASE + "assets/jd_diet_dew_racist.mp3", text: "🥤 RACIST SODA?!", buffer: null, audioEl: null },
+            { id: "forks", url: ASSET_BASE + "assets/jd_forks.mp3", text: "🍴 SO MANY FUCKING FORKS!", buffer: null, audioEl: null },
+            { id: "men", url: ASSET_BASE + "assets/jd_men.mp3", text: "🧔 GOOD-LOOKING MEN!", buffer: null, audioEl: null },
+            { id: "ohio_black_my_eyes", url: ASSET_BASE + "assets/jd_ohio_black_my_eyes.mp3", text: "👁️ CUT MY WRISTS & BLACK MY EYES!", buffer: null, audioEl: null }
           ];
           this.jdLoading = false;
 
           // Diaper Don Village People disco & viral quote soundbite pool (clean 1.5 - 2.4s hooks)
           this.donClips = [
-            { id: "ymca", url: "assets/don_ymca.mp3", text: "🕺 Y-M-C-A!", buffer: null, audioEl: null },
-            { id: "the_boys", url: "assets/don_the_boys.mp3", text: "👬 WITH ALL THE BOYS!", buffer: null, audioEl: null },
-            { id: "macho_man", url: "assets/don_macho_man.mp3", text: "💪 MACHO MAN!", buffer: null, audioEl: null },
-            { id: "china", url: "assets/don_china.mp3", text: "🇨🇳 CHINA!", buffer: null, audioEl: null },
-            { id: "bing_bong", url: "assets/don_bing_bong.mp3", text: "🔔 BING BING BONG!", buffer: null, audioEl: null },
-            { id: "stable_genius", url: "assets/don_stable_genius.mp3", text: "🧠 STABLE GENIUS!", buffer: null, audioEl: null },
-            { id: "words", url: "assets/don_words.mp3", text: "📖 THE BEST WORDS!", buffer: null, audioEl: null }
+            { id: "ymca", url: ASSET_BASE + "assets/don_ymca.mp3", text: "🕺 Y-M-C-A!", buffer: null, audioEl: null },
+            { id: "the_boys", url: ASSET_BASE + "assets/don_the_boys.mp3", text: "👬 WITH ALL THE BOYS!", buffer: null, audioEl: null },
+            { id: "macho_man", url: ASSET_BASE + "assets/don_macho_man.mp3", text: "💪 MACHO MAN!", buffer: null, audioEl: null },
+            { id: "china", url: ASSET_BASE + "assets/don_china.mp3", text: "🇨🇳 CHINA!", buffer: null, audioEl: null },
+            { id: "bing_bong", url: ASSET_BASE + "assets/don_bing_bong.mp3", text: "🔔 BING BING BONG!", buffer: null, audioEl: null },
+            { id: "stable_genius", url: ASSET_BASE + "assets/don_stable_genius.mp3", text: "🧠 STABLE GENIUS!", buffer: null, audioEl: null },
+            { id: "words", url: ASSET_BASE + "assets/don_words.mp3", text: "📖 THE BEST WORDS!", buffer: null, audioEl: null }
           ];
           this.donLoading = false;
 
           // Bobby (RFK Jr.) 100% authentic viral quote soundbite pool (clean 1.7 - 3.3s hooks)
           this.bobbyClips = [
-            { id: "brain_worm", url: "assets/bobby_brain_worm.mp3", text: "🪱 BRAIN PARASITE!", buffer: null, audioEl: null },
-            { id: "frogs", url: "assets/bobby_frogs.mp3", text: "🐸 FROGS CASTRATED!", buffer: null, audioEl: null },
-            { id: "eat_a_dog", url: "assets/bobby_eat_a_dog.mp3", text: "🐶 WOULDN'T EAT A DOG!", buffer: null, audioEl: null },
-            { id: "marjorie", url: "assets/bobby_marjorie.mp3", text: "📢 GOD DAMMIT MARJORIE!", buffer: null, audioEl: null },
-            { id: "raccoon", url: "assets/bobby_raccoon.mp3", text: "🦝 ROAD-KILLED RACCOON!", buffer: null, audioEl: null }
+            { id: "brain_worm", url: ASSET_BASE + "assets/bobby_brain_worm.mp3", text: "🪱 BRAIN PARASITE!", buffer: null, audioEl: null },
+            { id: "frogs", url: ASSET_BASE + "assets/bobby_frogs.mp3", text: "🐸 FROGS CASTRATED!", buffer: null, audioEl: null },
+            { id: "eat_a_dog", url: ASSET_BASE + "assets/bobby_eat_a_dog.mp3", text: "🐶 WOULDN'T EAT A DOG!", buffer: null, audioEl: null },
+            { id: "marjorie", url: ASSET_BASE + "assets/bobby_marjorie.mp3", text: "📢 GOD DAMMIT MARJORIE!", buffer: null, audioEl: null },
+            { id: "raccoon", url: ASSET_BASE + "assets/bobby_raccoon.mp3", text: "🦝 ROAD-KILLED RACCOON!", buffer: null, audioEl: null }
           ];
           this.bobbyLoading = false;
 
           // Charlie Kirk 100% authentic campus debate soundbite pool
           this.kirkTheme = null;
           this.kirkClips = [
-            { id: "kirk_anthem", url: "assets/We%20Are%20(Charlie%20Kirk)Remix.mp3", text: "★ WE ARE CHARLIE KIRK! ★", buffer: null, audioEl: null }
+            { id: "kirk_anthem", url: ASSET_BASE + "assets/We%20Are%20(Charlie%20Kirk)Remix.mp3", text: "★ WE ARE CHARLIE KIRK! ★", buffer: null, audioEl: null }
           ];
           this.kirkLoading = false;
 
           // CEO & Chair EriKKKa - TPUSA Convention Arena Keynote Anthem
           this.erikkkaTheme = null;
           this.erikkkaClips = [
-            { id: "erikkka_anthem", url: "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3", text: "✨ PROVE ME WRONG (UNTITLED) ✨", buffer: null, audioEl: null }
+            { id: "erikkka_anthem", url: ASSET_BASE + "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3", text: "✨ PROVE ME WRONG (UNTITLED) ✨", buffer: null, audioEl: null }
           ];
           this.erikkkaLoading = false;
 
@@ -2663,8 +2675,8 @@
               this.ctx = new AudioContextClass();
             }
           }
-          if (this.ctx && this.ctx.state === "suspended") {
-            this.ctx.resume();
+          if (this.ctx && this.ctx.state !== "running") {
+            this.ctx.resume().catch(() => {});
           }
           this.initSquishBuffer();
           this.preloadKidRockClips();
@@ -2808,7 +2820,7 @@
           this.kirkLoading = true;
           try {
             if (!this.kirkTheme) {
-              this.kirkTheme = new Audio("assets/We%20Are%20(Charlie%20Kirk)Remix.mp3");
+              this.kirkTheme = new Audio(ASSET_BASE + "assets/We%20Are%20(Charlie%20Kirk)Remix.mp3");
               this.kirkTheme.loop = true;
               this.kirkTheme.volume = 0.70;
               this.kirkTheme.preload = "auto";
@@ -2821,7 +2833,7 @@
           this.erikkkaLoading = true;
           try {
             if (!this.erikkkaTheme) {
-              this.erikkkaTheme = new Audio("assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3");
+              this.erikkkaTheme = new Audio(ASSET_BASE + "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3");
               this.erikkkaTheme.loop = true;
               this.erikkkaTheme.volume = 0.70;
               this.erikkkaTheme.preload = "auto";
@@ -3447,11 +3459,11 @@
 
         playKirkTheme() {
           try {
-            if (this.ctx && this.ctx.state === "suspended") {
-              this.ctx.resume();
+            if (this.ctx && this.ctx.state !== "running") {
+              this.ctx.resume().catch(() => {});
             }
             if (!this.kirkTheme) {
-              this.kirkTheme = new Audio("assets/We%20Are%20(Charlie%20Kirk)Remix.mp3");
+              this.kirkTheme = new Audio(ASSET_BASE + "assets/We%20Are%20(Charlie%20Kirk)Remix.mp3");
               this.kirkTheme.loop = true;
               this.kirkTheme.volume = 0.70;
             }
@@ -3491,11 +3503,11 @@
 
         playErikkkaTheme() {
           try {
-            if (this.ctx && this.ctx.state === "suspended") {
-              this.ctx.resume();
+            if (this.ctx && this.ctx.state !== "running") {
+              this.ctx.resume().catch(() => {});
             }
             if (!this.erikkkaTheme) {
-              this.erikkkaTheme = new Audio("assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3");
+              this.erikkkaTheme = new Audio(ASSET_BASE + "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3");
               this.erikkkaTheme.loop = true;
               this.erikkkaTheme.volume = 0.70;
             }
@@ -3545,7 +3557,7 @@
         playKirkCrash() {
           try {
             this.stopKirkTheme();
-            const crashAudio = new Audio("assets/kirk_feedback_crash.mp3");
+            const crashAudio = new Audio(ASSET_BASE + "assets/kirk_feedback_crash.mp3");
             crashAudio.volume = 0.9;
             crashAudio.play().catch(() => {});
           } catch (e) {}
@@ -3801,7 +3813,8 @@
 
       function resizeCanvas() {
         const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
+        // 3x phones gain nothing visible over 2x but pay 2.25x the fill cost
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
         canvas.width = Math.round(rect.width * dpr);
         canvas.height = Math.round(rect.height * dpr);
@@ -3824,7 +3837,7 @@
           if (sfx.pauseKirkTheme) sfx.pauseKirkTheme();
           if (sfx.pauseErikkkaTheme) sfx.pauseErikkkaTheme();
         } else {
-          if (sfx.ctx && sfx.ctx.state === "suspended" && (currentState === STATE.PLAYING || currentState === "PLAYING")) {
+          if (sfx.ctx && sfx.ctx.state !== "running" && (currentState === STATE.PLAYING || currentState === "PLAYING")) {
             sfx.ctx.resume().catch(() => {});
           }
           if (currentState === STATE.PLAYING || currentState === "PLAYING") {
@@ -3875,15 +3888,11 @@
 
       function cleanLegacyStorage() {
         try {
+          // Only Flapper-owned keys: the arcade serves every cabinet from one
+          // origin, so generic names like "highScore" may belong to another game.
           const legacyKeys = [
             "flappy_progression",
-            "totalDews",
-            "highScore",
-            "flappy_best_score",
-            "totalCrashes",
-            "scores",
-            "unlockedCharacters",
-            "unlockedAchievements"
+            "flappy_best_score"
           ];
           legacyKeys.forEach(k => localStorage.removeItem(k));
         } catch (e) {}
@@ -3921,35 +3930,8 @@
 
           if (!p || typeof p !== "object") p = {};
 
-          p.totalDews = typeof p.totalDews === "number" ? p.totalDews : parseInt(localStorage.getItem("totalDews") || "0", 10) || 0;
-          p.highScore = typeof p.highScore === "number" ? p.highScore : parseInt(localStorage.getItem("highScore") || localStorage.getItem("flappy_best_score") || "0", 10) || 0;
-          p.totalCrashes = typeof p.totalCrashes === "number" ? p.totalCrashes : parseInt(localStorage.getItem("totalCrashes") || "0", 10) || 0;
-
-          if (!p.scores || typeof p.scores !== "object") {
-            try {
-              const rawScores = JSON.parse(localStorage.getItem("scores") || "null");
-              p.scores = (rawScores && typeof rawScores === "object") ? rawScores : { jd: 0, bobby: 0, donny: 0, kirk: 0 };
-            } catch (e) {
-              p.scores = { jd: 0, bobby: 0, donny: 0, kirk: 0 };
-            }
-          }
-
-          if (!Array.isArray(p.unlockedCharacters) || p.unlockedCharacters.length === 0) {
-            try {
-              const uChars = JSON.parse(localStorage.getItem("unlockedCharacters") || "null");
-              p.unlockedCharacters = Array.isArray(uChars) ? uChars : ["jd"];
-            } catch (e) {
-              p.unlockedCharacters = ["jd"];
-            }
-          }
-
-          if (!Array.isArray(p.unlockedAchievements)) {
-            try {
-              const uAch = JSON.parse(localStorage.getItem("unlockedAchievements") || "null");
-              p.unlockedAchievements = Array.isArray(uAch) ? uAch : [];
-            } catch (e) {
-              p.unlockedAchievements = [];
-            }
+          if (typeof p.highScore !== "number") {
+            p.highScore = parseInt(localStorage.getItem("flappy_best_score") || "0", 10) || 0;
           }
         }
 
@@ -4416,7 +4398,7 @@
         jd: {
           id: "jd",
           name: "Pwease Pway JD!",
-          src: "assets/portly_jd.png",
+          src: ASSET_BASE + "assets/portly_jd.png",
           sheetW: 1024,
           sheetH: 572,
           fallbackColor: "#2563eb",
@@ -4425,7 +4407,7 @@
         bobby: {
           id: "bobby",
           name: "Bobby & Worm",
-          src: "assets/buff_bob.png",
+          src: ASSET_BASE + "assets/buff_bob.png",
           sheetW: 1024,
           sheetH: 572,
           fallbackColor: "#78716c",
@@ -4434,7 +4416,7 @@
         donny: {
           id: "donny",
           name: "Diaper Don",
-          src: "assets/diaper_don.png",
+          src: ASSET_BASE + "assets/diaper_don.png",
           sheetW: 1024,
           sheetH: 559,
           fallbackColor: "#eab308",
@@ -4443,7 +4425,7 @@
         kirk: {
           id: "kirk",
           name: "Kamikaze Kirk",
-          src: "assets/kamikaze_kirk.png",
+          src: ASSET_BASE + "assets/kamikaze_kirk.png",
           sheetW: 1024,
           sheetH: 572,
           fallbackColor: "#dc2626",
@@ -4452,7 +4434,7 @@
         erikkka: {
           id: "erikkka",
           name: "CEO & Chair EriKKKa",
-          src: "assets/erikkka.png",
+          src: ASSET_BASE + "assets/erikkka.png",
           sheetW: 1376,
           sheetH: 768,
           fallbackColor: "#ec4899",
@@ -4491,12 +4473,7 @@
           }
         };
         img.onerror = function () {
-          // If assets/ prefix fails (e.g. flat host), try root fallback or vice versa
-          if (img.src.indexOf("assets/") !== -1) {
-            img.src = img.src.substring(img.src.indexOf("assets/") + 7);
-          } else {
-            characterImagesLoaded[char.id] = false;
-          }
+          characterImagesLoaded[char.id] = false;
         };
         img.src = char.src;
       });
@@ -5768,7 +5745,7 @@
       dewImg.loaded = false;
       dewImg.onload = () => { dewImg.loaded = true; };
       dewImg.onerror = () => { dewImg.loaded = false; };
-      dewImg.src = 'assets/dew.png';
+      dewImg.src = ASSET_BASE + 'assets/dew.png';
       const dewSprite = dewImg;
       let dewSpriteLoaded = false;
 
@@ -7885,7 +7862,7 @@
       couchImg.loaded = false;
       couchImg.onload = () => { couchImg.loaded = true; };
       couchImg.onerror = () => { couchImg.loaded = false; };
-      couchImg.src = 'assets/couch.png';
+      couchImg.src = ASSET_BASE + 'assets/couch.png';
       const couchSprite = couchImg;
       let couchSpriteLoaded = false;
 
@@ -7896,13 +7873,9 @@
         kidRockSpriteLoaded = true;
       };
       kidRockSprite.onerror = function () {
-        if (kidRockSprite.src.indexOf("assets/") !== -1) {
-          kidRockSprite.src = "kid_rock.png";
-        } else {
-          kidRockSpriteLoaded = false;
-        }
+        kidRockSpriteLoaded = false;
       };
-      kidRockSprite.src = "assets/kid_rock.png";
+      kidRockSprite.src = ASSET_BASE + "assets/kid_rock.png";
 
       function drawProceduralCouch(cx, cy, cw, ch, isInverted, variant) {
         if (ch <= 0) return;
@@ -12726,7 +12699,7 @@
           charIcon: "🏋️",
           title: "🪱 BRAIN PARASITE!",
           quote: "Parasite that got into your brain",
-          url: "assets/bobby_brain_worm.mp3",
+          url: ASSET_BASE + "assets/bobby_brain_worm.mp3",
           dur: "3.3s",
           tag: "Authentic Broadcast"
         },
@@ -12737,7 +12710,7 @@
           charIcon: "🏋️",
           title: "🐸 FROGS CASTRATED!",
           quote: "30 of those frogs were chemically castrated",
-          url: "assets/bobby_frogs.mp3",
+          url: ASSET_BASE + "assets/bobby_frogs.mp3",
           dur: "3.0s",
           tag: "Authentic Podcast"
         },
@@ -12748,7 +12721,7 @@
           charIcon: "🏋️",
           title: "🐶 WOULDN'T EAT A DOG!",
           quote: "Wouldn't eat a monkey and I wouldn't eat a dog",
-          url: "assets/bobby_eat_a_dog.mp3",
+          url: ASSET_BASE + "assets/bobby_eat_a_dog.mp3",
           dur: "2.7s",
           tag: "Authentic Studio"
         },
@@ -12759,7 +12732,7 @@
           charIcon: "🏋️",
           title: "📢 GOD DAMMIT MARJORIE!",
           quote: "God dammit Marjorie!",
-          url: "assets/bobby_marjorie.mp3",
+          url: ASSET_BASE + "assets/bobby_marjorie.mp3",
           dur: "1.7s",
           tag: "Authentic Audio"
         },
@@ -12770,7 +12743,7 @@
           charIcon: "🏋️",
           title: "🦝 ROAD-KILLED RACCOON!",
           quote: "Cutting the penis out of a road-killed raccoon",
-          url: "assets/bobby_raccoon.mp3",
+          url: ASSET_BASE + "assets/bobby_raccoon.mp3",
           dur: "2.8s",
           tag: "Authentic Podcast"
         },
@@ -12782,7 +12755,7 @@
           charIcon: "🛋️",
           title: "🥤 RACIST SODA?!",
           quote: "They call Diet Mountain Dew racist...",
-          url: "assets/jd_diet_dew_racist.mp3",
+          url: ASSET_BASE + "assets/jd_diet_dew_racist.mp3",
           dur: "1.9s",
           tag: "Rally Speech"
         },
@@ -12793,7 +12766,7 @@
           charIcon: "🛋️",
           title: "🍩 A LOT OF GLAZE!",
           quote: "A lot of glaze...",
-          url: "assets/jd_okay_good.mp3",
+          url: ASSET_BASE + "assets/jd_okay_good.mp3",
           dur: "1.1s",
           tag: "Donut Shop"
         },
@@ -12804,7 +12777,7 @@
           charIcon: "🛋️",
           title: "🍩 WHATEVER MAKES SENSE!",
           quote: "Sprinkles, whatever makes sense...",
-          url: "assets/jd_whatever_makes_sense.mp3",
+          url: ASSET_BASE + "assets/jd_whatever_makes_sense.mp3",
           dur: "1.8s",
           tag: "Donut Shop"
         },
@@ -12815,7 +12788,7 @@
           charIcon: "🛋️",
           title: "👁️ CUT MY WRISTS & BLACK MY EYES!",
           quote: "So cut my wrists and black my eyes",
-          url: "assets/jd_ohio_black_my_eyes.mp3",
+          url: ASSET_BASE + "assets/jd_ohio_black_my_eyes.mp3",
           dur: "4.0s",
           tag: "Hawthorne Heights"
         },
@@ -12826,7 +12799,7 @@
           charIcon: "🛋️",
           title: "🍴 SO MANY FORKS!",
           quote: "So many fucking forks!",
-          url: "assets/jd_forks.mp3",
+          url: ASSET_BASE + "assets/jd_forks.mp3",
           dur: "2.5s",
           tag: "Dinner Story"
         },
@@ -12837,7 +12810,7 @@
           charIcon: "🛋️",
           title: "🧔 GOOD-LOOKING MEN!",
           quote: "All these good-looking men in Ohio...",
-          url: "assets/jd_men.mp3",
+          url: ASSET_BASE + "assets/jd_men.mp3",
           dur: "2.5s",
           tag: "Ohio Rally"
         },
@@ -12849,7 +12822,7 @@
           charIcon: "🍼",
           title: "🕺 Y-M-C-A!",
           quote: "Y-M-C-A!",
-          url: "assets/don_ymca.mp3",
+          url: ASSET_BASE + "assets/don_ymca.mp3",
           dur: "2.4s",
           tag: "Village People"
         },
@@ -12860,7 +12833,7 @@
           charIcon: "🍼",
           title: "👬 WITH ALL THE BOYS!",
           quote: "You can hang out with all the boys!",
-          url: "assets/don_the_boys.mp3",
+          url: ASSET_BASE + "assets/don_the_boys.mp3",
           dur: "2.4s",
           tag: "Village People"
         },
@@ -12871,7 +12844,7 @@
           charIcon: "🍼",
           title: "💪 MACHO MAN!",
           quote: "Macho, Macho Man!",
-          url: "assets/don_macho_man.mp3",
+          url: ASSET_BASE + "assets/don_macho_man.mp3",
           dur: "2.4s",
           tag: "Village People"
         },
@@ -12882,7 +12855,7 @@
           charIcon: "🍼",
           title: "🇨🇳 CHINA!",
           quote: "China!",
-          url: "assets/don_china.mp3",
+          url: ASSET_BASE + "assets/don_china.mp3",
           dur: "0.8s",
           tag: "Rally Catchphrase"
         },
@@ -12893,7 +12866,7 @@
           charIcon: "🍼",
           title: "🔔 BING BING BONG!",
           quote: "Bing bing bing, bong bong bong!",
-          url: "assets/don_bing_bong.mp3",
+          url: ASSET_BASE + "assets/don_bing_bong.mp3",
           dur: "2.1s",
           tag: "Speech FX"
         },
@@ -12904,7 +12877,7 @@
           charIcon: "🍼",
           title: "🧠 STABLE GENIUS!",
           quote: "Very stable genius...",
-          url: "assets/don_stable_genius.mp3",
+          url: ASSET_BASE + "assets/don_stable_genius.mp3",
           dur: "1.5s",
           tag: "Press Conference"
         },
@@ -12915,7 +12888,7 @@
           charIcon: "🍼",
           title: "📖 THE BEST WORDS!",
           quote: "I have the best words...",
-          url: "assets/don_words.mp3",
+          url: ASSET_BASE + "assets/don_words.mp3",
           dur: "2.1s",
           tag: "Rally Speech"
         },
@@ -12927,7 +12900,7 @@
           charIcon: "🎸",
           title: "🎸 BAWITDABA!",
           quote: "Bawitdaba da bang da bang diggy diggy...",
-          url: "assets/kid_rock_bawitdaba.mp3",
+          url: ASSET_BASE + "assets/kid_rock_bawitdaba.mp3",
           dur: "2.4s",
           tag: "Arena Anthem"
         },
@@ -12938,7 +12911,7 @@
           charIcon: "🎸",
           title: "🎤 MY NAME IS KIIIIID!",
           quote: "My name is Kiiiiiiid... Kid Rock!",
-          url: "assets/kid_rock_my_name_is_kid.mp3",
+          url: ASSET_BASE + "assets/kid_rock_my_name_is_kid.mp3",
           dur: "3.5s",
           tag: "Iconic Drop"
         },
@@ -12949,7 +12922,7 @@
           charIcon: "🎸",
           title: "🤠 COWBOY...",
           quote: "Yeah... I'm a cowboy, baby!",
-          url: "assets/kid_rock_cowboy_intro.mp3",
+          url: ASSET_BASE + "assets/kid_rock_cowboy_intro.mp3",
           dur: "2.3s",
           tag: "Cowboy Baby"
         },
@@ -12960,7 +12933,7 @@
           charIcon: "🎸",
           title: "⚡ POWER CHORD!",
           quote: "Drop-D distorted arena electric guitar chord",
-          url: "assets/guitar_power_chord.mp3",
+          url: ASSET_BASE + "assets/guitar_power_chord.mp3",
           dur: "2.0s",
           tag: "Arena Distortion"
         },
@@ -12972,7 +12945,7 @@
           charIcon: "🎓",
           title: "🎵 WE ARE CHARLIE KIRK (REMIX)!",
           quote: "Massive Hans Zimmer brass swells, distorted 808 bass, and collegiate hype chants!",
-          url: "assets/We%20Are%20(Charlie%20Kirk)Remix.mp3",
+          url: ASSET_BASE + "assets/We%20Are%20(Charlie%20Kirk)Remix.mp3",
           dur: "3:28",
           tag: "Official Theme Song"
         },
@@ -12984,7 +12957,7 @@
           charIcon: "✨",
           title: "🎵 PROVE ME WRONG (UNTITLED)",
           quote: "High-energy convention keynote anthem blasting through the TPUSA arena!",
-          url: "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3",
+          url: ASSET_BASE + "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3",
           dur: "3:16",
           tag: "Convention Theme Song"
         }
