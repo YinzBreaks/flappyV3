@@ -967,16 +967,16 @@
 
     .gallery-category-select, .soundboard-category-select {
       width: 100%;
-      padding: 7px 30px 7px 12px;   /* left 32px held no icon: the chevron sits
-                                       at right 10px, so that was dead space
-                                       clipping the option label */
+      padding: 7px 28px 7px 30px;   /* left clears the absolute .select-icon at
+                                       left:10px; right clears the chevron at
+                                       right:10px */
       border-radius: 10px;
       background: rgba(15, 23, 42, 0.95);
       border: 1.5px solid rgba(245, 158, 11, 0.55);
       color: #fbbf24;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0;
       cursor: pointer;
       appearance: none;
       -webkit-appearance: none;
@@ -2350,7 +2350,7 @@
             <select id="soundboard-filter-select" class="soundboard-category-select" aria-label="Filter Audio by Character">
               <option value="all">⭐ All Sounds (28 Authentic Broadcast Clips)</option>
               <option value="bobby">🏋️ Bobby / RFK Jr. (5 Authentic Clips)</option>
-              <option value="jd">🛋️ JD Vance (6 Viral Quotes)</option>
+              <option value="jd">🛋️ JD Vance (4 Viral Quotes)</option>
               <option value="donny">🍼 Diaper Don (7 Rally &amp; Disco Clips)</option>
               <option value="kid">🎸 Kid Rock (4 Iconic Arena Drops)</option>
               <option value="kirk">🎓 Kamikaze Kirk (Official Anthem)</option>
@@ -2650,9 +2650,7 @@
           // Iconic JD Vance Dayton Ohio Emo & Donut Shop soundbite pool (trimmed punchlines)
           this.jdClips = [
             { id: "okay_good", url: ASSET_BASE + "assets/jd_okay_good.mp3", text: "🍩 A LOT OF GLAZE!", buffer: null, audioEl: null },
-            { id: "whatever_makes_sense", url: ASSET_BASE + "assets/jd_whatever_makes_sense.mp3", text: "🍩 WHATEVER MAKES SENSE!", buffer: null, audioEl: null },
             { id: "diet_dew_racist", url: ASSET_BASE + "assets/jd_diet_dew_racist.mp3", text: "🥤 RACIST SODA?!", buffer: null, audioEl: null },
-            { id: "forks", url: ASSET_BASE + "assets/jd_forks.mp3", text: "🍴 SO MANY FUCKING FORKS!", buffer: null, audioEl: null },
             { id: "men", url: ASSET_BASE + "assets/jd_men.mp3", text: "🧔 GOOD-LOOKING MEN!", buffer: null, audioEl: null },
             { id: "ohio_black_my_eyes", url: ASSET_BASE + "assets/jd_ohio_black_my_eyes.mp3", text: "👁️ CUT MY WRISTS & BLACK MY EYES!", buffer: null, audioEl: null }
           ];
@@ -12581,17 +12579,6 @@
           tag: "Donut Shop"
         },
         {
-          id: "jd_whatever_makes_sense",
-          char: "jd",
-          charName: "JD Vance",
-          charIcon: "🛋️",
-          title: "🍩 WHATEVER MAKES SENSE!",
-          quote: "Sprinkles, whatever makes sense...",
-          url: ASSET_BASE + "assets/jd_whatever_makes_sense.mp3",
-          dur: "1.8s",
-          tag: "Donut Shop"
-        },
-        {
           id: "jd_ohio_black_my_eyes",
           char: "jd",
           charName: "JD Vance",
@@ -12601,17 +12588,6 @@
           url: ASSET_BASE + "assets/jd_ohio_black_my_eyes.mp3",
           dur: "4.0s",
           tag: "Hawthorne Heights"
-        },
-        {
-          id: "jd_forks",
-          char: "jd",
-          charName: "JD Vance",
-          charIcon: "🛋️",
-          title: "🍴 SO MANY FORKS!",
-          quote: "So many fucking forks!",
-          url: ASSET_BASE + "assets/jd_forks.mp3",
-          dur: "2.5s",
-          tag: "Dinner Story"
         },
         {
           id: "jd_men",
