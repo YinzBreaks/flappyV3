@@ -88,7 +88,15 @@
       height: 100%;
       display: none;
       justify-content: center;
-      align-items: center;
+      /* flex-start here, with margin:auto on the card — NOT align-items:center.
+         A centred flex item taller than its container overflows equally in both
+         directions and the overflowing top is unreachable even with
+         overflow-y:auto, so on short screens the death quote and the badge
+         above it could not be read or scrolled to. */
+      align-items: flex-start;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       background: rgba(15, 23, 42, 0.72);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
@@ -110,6 +118,10 @@
     .overlay-card {
       width: 100%;
       max-width: 340px;
+      /* centres the card when there is room, and lets it scroll rather than
+         clip when there is not */
+      margin: auto;
+      flex-shrink: 0;
       background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
       border: 1.5px solid rgba(255, 255, 255, 0.12);
       border-radius: 20px;
@@ -391,10 +403,8 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
       letter-spacing: 0.2px;
       margin: 2px 0 1px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       line-height: 1.25;
+      overflow-wrap: anywhere;
     }
 
     .toast-desc {
@@ -714,6 +724,33 @@
       line-height: 1.2;
     }
 
+    .mute-btn {
+      position: absolute;
+      right: 8px;
+      bottom: 6px;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 16px;
+      line-height: 1;
+      color: #fbbf24;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 160;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    .mute-btn:focus-visible {
+      outline: 2px solid #fbbf24;
+      outline-offset: 2px;
+    }
+
     /* --- CARTOON SHOWCASE & ASSET INSPECTION VIEWER --- */
     .btn-gallery-trigger {
       display: inline-flex;
@@ -808,7 +845,10 @@
       z-index: 120;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       padding: 10px;
       opacity: 0;
       pointer-events: none;
@@ -823,6 +863,8 @@
     }
 
     .gallery-card {
+      margin: auto;
+      flex-shrink: 0;
       width: 100%;
       max-width: 388px;
       max-height: 96%;
@@ -925,7 +967,9 @@
 
     .gallery-category-select, .soundboard-category-select {
       width: 100%;
-      padding: 7px 32px 7px 32px;
+      padding: 7px 30px 7px 12px;   /* left 32px held no icon: the chevron sits
+                                       at right 10px, so that was dead space
+                                       clipping the option label */
       border-radius: 10px;
       background: rgba(15, 23, 42, 0.95);
       border: 1.5px solid rgba(245, 158, 11, 0.55);
@@ -1260,10 +1304,8 @@
       font-weight: 700;
       color: #94a3b8;
       max-width: 48px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       text-align: center;
+      overflow-wrap: anywhere;
     }
 
     .filmstrip-thumb.active .filmstrip-thumb-title {
@@ -1326,7 +1368,10 @@
       z-index: 125;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       padding: 10px;
       opacity: 0;
       pointer-events: none;
@@ -1341,6 +1386,8 @@
     }
 
     .achievements-card {
+      margin: auto;
+      flex-shrink: 0;
       width: 100%;
       max-width: 388px;
       height: 94%;
@@ -1565,9 +1612,7 @@
       font-weight: 800;
       letter-spacing: 0.3px;
       line-height: 1.25;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      overflow-wrap: anywhere;
     }
 
     .achievement-card.unlocked .achievement-title {
@@ -1726,7 +1771,10 @@
       z-index: 125;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
       padding: 10px;
       opacity: 0;
       pointer-events: none;
@@ -1741,6 +1789,8 @@
     }
 
     .soundboard-card {
+      margin: auto;
+      flex-shrink: 0;
       width: 100%;
       max-width: 400px;
       height: 94%;
@@ -1899,9 +1949,7 @@
       font-size: 10.5px;
       font-weight: 700;
       color: #cbd5e1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      overflow-wrap: anywhere;
     }
 
     .soundboard-stop-btn {
@@ -2016,9 +2064,7 @@
       font-weight: 900;
       letter-spacing: 0.8px;
       color: #f8fafc;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      overflow-wrap: anywhere;
     }
 
     .sound-card.playing .sound-card-title {
@@ -2040,10 +2086,8 @@
       font-size: 10px;
       font-style: italic;
       color: #94a3b8;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
       margin-top: 1px;
+      overflow-wrap: anywhere;
     }
 
     .sound-card-meta {
@@ -2096,6 +2140,7 @@
 <body>
   <div id="game-container">
     <canvas id="gameCanvas" tabindex="0"></canvas>
+    <button id="mute-btn" class="mute-btn" type="button" aria-label="Mute sound" aria-pressed="false" title="Mute (M)">🔊</button>
 
     <!-- Title Banner Tap Zone (Mobile Secret Unlock Trigger) -->
     <div id="title-banner-tapzone" class="title-banner-tapzone" aria-label="Title Banner Tap Zone"></div>
@@ -2597,7 +2642,7 @@
           this.kidRockClips = [
             { id: "bawitdaba", url: ASSET_BASE + "assets/kid_rock_bawitdaba.mp3", text: "🎸 BAWITDABA!", buffer: null, audioEl: null },
             { id: "my_name_is_kid", url: ASSET_BASE + "assets/kid_rock_my_name_is_kid.mp3", text: "🎤 MY NAME IS KIIIIID!", buffer: null, audioEl: null },
-            { id: "cowboy_intro", url: ASSET_BASE + "assets/kid_rock_cowboy_intro.mp3", text: "🌵 COWBOY...", buffer: null, audioEl: null },
+            { id: "cowboy_intro", url: ASSET_BASE + "assets/kid_rock_cowboy_intro.mp3", text: "🤠 COWBOY...", buffer: null, audioEl: null },
             { id: "power_chord", url: ASSET_BASE + "assets/guitar_power_chord.mp3", text: "⚡ POWER CHORD!", buffer: null, audioEl: null }
           ];
           this.kidRockLoading = false;
@@ -2654,6 +2699,14 @@
           this.activeVoiceAudioEl = null;
           this.activeVoiceEndTime = 0;
           this.squishNoiseBuffer = null;
+
+          this.kirkCrashClip = { id: "kirk_crash", url: ASSET_BASE + "assets/kirk_feedback_crash.mp3", buffer: null, audioEl: null };
+          this.master = null;
+          this.muted = false;
+          try { this.muted = localStorage.getItem("flappy_muted") === "1"; } catch (e) {}
+          // Theme the game wants playing; a tap retries it if the browser blocked play()
+          this.wantedTheme = null;
+          this.lastClipId = {};
         }
 
         initSquishBuffer() {
@@ -2673,6 +2726,9 @@
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             if (AudioContextClass) {
               this.ctx = new AudioContextClass();
+              this.master = this.ctx.createGain();
+              this.master.gain.value = this.muted ? 0 : 1;
+              this.master.connect(this.ctx.destination);
             }
           }
           if (this.ctx && this.ctx.state !== "running") {
@@ -2685,134 +2741,56 @@
           this.preloadBobbyClips();
           this.preloadKirkClips();
           this.preloadErikkkaClips();
+          this.loadClips([this.kirkCrashClip]);
+        }
+
+        // Decode into an AudioBuffer; fall back to an <audio> element if fetch or decode fails
+        loadClips(clips) {
+          clips.forEach(clip => {
+            if (clip.buffer || clip.audioEl || clip.loading) return;
+            clip.loading = true;
+            const fallback = () => {
+              try {
+                const a = new Audio(clip.url);
+                a.preload = "auto";
+                a.muted = this.muted;
+                clip.audioEl = a;
+              } catch (e) {}
+            };
+            if (!this.ctx || typeof fetch !== "function") return fallback();
+            fetch(clip.url)
+              .then(res => {
+                if (!res.ok) throw new Error("Audio fetch failed: " + res.status);
+                return res.arrayBuffer();
+              })
+              .then(arrayBuffer => this.ctx.decodeAudioData(arrayBuffer))
+              .then(decodedAudio => { clip.buffer = decodedAudio; })
+              .catch(fallback);
+          });
         }
 
         preloadKidRockClips() {
           if (this.kidRockLoading) return;
           this.kidRockLoading = true;
-          this.kidRockClips.forEach(clip => {
-            if (clip.buffer) return;
-            if (this.ctx && typeof fetch === "function") {
-              fetch(clip.url)
-                .then(res => {
-                  if (!res.ok) throw new Error("Audio fetch failed: " + res.status);
-                  return res.arrayBuffer();
-                })
-                .then(arrayBuffer => this.ctx.decodeAudioData(arrayBuffer))
-                .then(decodedAudio => {
-                  clip.buffer = decodedAudio;
-                })
-                .catch(() => {
-                  try {
-                    const a = new Audio(clip.url);
-                    a.preload = "auto";
-                    clip.audioEl = a;
-                  } catch (e) {}
-                });
-            } else {
-              try {
-                const a = new Audio(clip.url);
-                a.preload = "auto";
-                clip.audioEl = a;
-              } catch (e) {}
-            }
-          });
+          this.loadClips(this.kidRockClips);
         }
 
         preloadJDClips() {
           if (this.jdLoading) return;
           this.jdLoading = true;
-          this.jdClips.forEach(clip => {
-            if (clip.buffer) return;
-            if (this.ctx && typeof fetch === "function") {
-              fetch(clip.url)
-                .then(res => {
-                  if (!res.ok) throw new Error("Audio fetch failed: " + res.status);
-                  return res.arrayBuffer();
-                })
-                .then(arrayBuffer => this.ctx.decodeAudioData(arrayBuffer))
-                .then(decodedAudio => {
-                  clip.buffer = decodedAudio;
-                })
-                .catch(() => {
-                  try {
-                    const a = new Audio(clip.url);
-                    a.preload = "auto";
-                    clip.audioEl = a;
-                  } catch (e) {}
-                });
-            } else {
-              try {
-                const a = new Audio(clip.url);
-                a.preload = "auto";
-                clip.audioEl = a;
-              } catch (e) {}
-            }
-          });
+          this.loadClips(this.jdClips);
         }
 
         preloadDonClips() {
           if (this.donLoading) return;
           this.donLoading = true;
-          this.donClips.forEach(clip => {
-            if (clip.buffer) return;
-            if (this.ctx && typeof fetch === "function") {
-              fetch(clip.url)
-                .then(res => {
-                  if (!res.ok) throw new Error("Audio fetch failed: " + res.status);
-                  return res.arrayBuffer();
-                })
-                .then(arrayBuffer => this.ctx.decodeAudioData(arrayBuffer))
-                .then(decodedAudio => {
-                  clip.buffer = decodedAudio;
-                })
-                .catch(() => {
-                  try {
-                    const a = new Audio(clip.url);
-                    a.preload = "auto";
-                    clip.audioEl = a;
-                  } catch (e) {}
-                });
-            } else {
-              try {
-                const a = new Audio(clip.url);
-                a.preload = "auto";
-                clip.audioEl = a;
-              } catch (e) {}
-            }
-          });
+          this.loadClips(this.donClips);
         }
 
         preloadBobbyClips() {
           if (this.bobbyLoading) return;
           this.bobbyLoading = true;
-          this.bobbyClips.forEach(clip => {
-            if (clip.buffer) return;
-            if (this.ctx && typeof fetch === "function") {
-              fetch(clip.url)
-                .then(res => {
-                  if (!res.ok) throw new Error("Audio fetch failed: " + res.status);
-                  return res.arrayBuffer();
-                })
-                .then(arrayBuffer => this.ctx.decodeAudioData(arrayBuffer))
-                .then(decodedAudio => {
-                  clip.buffer = decodedAudio;
-                })
-                .catch(() => {
-                  try {
-                    const a = new Audio(clip.url);
-                    a.preload = "auto";
-                    clip.audioEl = a;
-                  } catch (e) {}
-                });
-            } else {
-              try {
-                const a = new Audio(clip.url);
-                a.preload = "auto";
-                clip.audioEl = a;
-              } catch (e) {}
-            }
-          });
+          this.loadClips(this.bobbyClips);
         }
 
         preloadKirkClips() {
@@ -2823,7 +2801,7 @@
               this.kirkTheme = new Audio(ASSET_BASE + "assets/We%20Are%20(Charlie%20Kirk)Remix.mp3");
               this.kirkTheme.loop = true;
               this.kirkTheme.volume = 0.70;
-              this.kirkTheme.preload = "auto";
+              this.kirkTheme.preload = "metadata";
             }
           } catch (e) {}
         }
@@ -2836,7 +2814,7 @@
               this.erikkkaTheme = new Audio(ASSET_BASE + "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3");
               this.erikkkaTheme.loop = true;
               this.erikkkaTheme.volume = 0.70;
-              this.erikkkaTheme.preload = "auto";
+              this.erikkkaTheme.preload = "metadata";
             }
           } catch (e) {}
         }
@@ -2864,7 +2842,7 @@
               gainFlap.gain.setValueAtTime(0.36, now);
               gainFlap.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
               oscFlap.connect(gainFlap);
-              gainFlap.connect(this.ctx.destination);
+              gainFlap.connect(this.master);
               oscFlap.start(now);
               oscFlap.stop(now + 0.09);
               return;
@@ -2879,7 +2857,7 @@
               gainFlap.gain.setValueAtTime(0.35, now);
               gainFlap.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
               oscFlap.connect(gainFlap);
-              gainFlap.connect(this.ctx.destination);
+              gainFlap.connect(this.master);
               oscFlap.start(now);
               oscFlap.stop(now + 0.09);
               return;
@@ -2909,7 +2887,7 @@
 
               oscSquelch.connect(filterSquelch);
               filterSquelch.connect(gainSquelch);
-              gainSquelch.connect(this.ctx.destination);
+              gainSquelch.connect(this.master);
 
               oscSquelch.start(now);
               oscSquelch.stop(now + 0.16);
@@ -2935,7 +2913,7 @@
 
                 whiteNoise.connect(filterNoise);
                 filterNoise.connect(gainNoise);
-                gainNoise.connect(this.ctx.destination);
+                gainNoise.connect(this.master);
 
                 whiteNoise.start(now);
                 whiteNoise.stop(now + 0.14);
@@ -2953,7 +2931,7 @@
               gainSub.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
               oscSub.connect(gainSub);
-              gainSub.connect(this.ctx.destination);
+              gainSub.connect(this.master);
 
               oscSub.start(now);
               oscSub.stop(now + 0.15);
@@ -2972,7 +2950,7 @@
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.11);
 
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.master);
 
             osc.start(now);
             osc.stop(now + 0.11);
@@ -3008,7 +2986,7 @@
 
             whiteNoise.connect(filter);
             filter.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.master);
 
             whiteNoise.start(now);
             whiteNoise.stop(now + 0.45);
@@ -3029,7 +3007,7 @@
             gain1.gain.setValueAtTime(0.35, now);
             gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
             osc1.connect(gain1);
-            gain1.connect(this.ctx.destination);
+            gain1.connect(this.master);
             osc1.start(now);
             osc1.stop(now + 0.09);
 
@@ -3041,7 +3019,7 @@
             gain2.gain.setValueAtTime(0.4, now + 0.07);
             gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.20);
             osc2.connect(gain2);
-            gain2.connect(this.ctx.destination);
+            gain2.connect(this.master);
             osc2.start(now + 0.07);
             osc2.stop(now + 0.20);
           } catch (e) {}
@@ -3058,7 +3036,7 @@
               source.buffer = chordClip.buffer;
               gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
               source.connect(gain);
-              gain.connect(this.ctx.destination);
+              gain.connect(this.master);
               source.start(0);
               return;
             }
@@ -3070,6 +3048,7 @@
               }
               a.currentTime = 0;
               a.volume = 0.85;
+              a.muted = this.muted;
               a.play().catch(() => {});
             }
           } catch (e) {}
@@ -3104,7 +3083,7 @@
             source.buffer = clip.buffer;
             gain.gain.setValueAtTime(0.9, this.ctx.currentTime);
             source.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.master);
             source.start(0);
 
             this.activeVoiceSource = source;
@@ -3133,6 +3112,7 @@
             if (a) {
               a.currentTime = 0;
               a.volume = 0.9;
+              a.muted = this.muted;
               a.play().catch(() => {});
               this.activeVoiceAudioEl = a;
               const durMs = (a.duration || 2.5) * 1000;
@@ -3145,6 +3125,31 @@
               return durMs;
             }
             return 2000;
+          }
+        }
+
+        setMuted(muted) {
+          this.muted = !!muted;
+          try { localStorage.setItem("flappy_muted", this.muted ? "1" : "0"); } catch (e) {}
+          if (this.master && this.ctx) {
+            this.master.gain.setTargetAtTime(this.muted ? 0 : 1, this.ctx.currentTime, 0.015);
+          }
+          // iOS ignores .volume on media elements, so mute them explicitly
+          const els = [this.kirkTheme, this.erikkkaTheme, this.activeVoiceAudioEl];
+          [this.kidRockClips, this.jdClips, this.donClips, this.bobbyClips, [this.kirkCrashClip]]
+            .forEach(pool => pool.forEach(clip => els.push(clip.audioEl)));
+          els.forEach(el => { if (el) el.muted = this.muted; });
+        }
+
+        // Call from pointerup/touchend/keydown: on touch, pointerdown is not a user
+        // activation, so resume() and a theme's play() started there can be refused.
+        unlock() {
+          this.init();
+          const theme = this.wantedTheme;
+          if (theme && theme.paused && !document.hidden) {
+            theme.muted = this.muted;
+            const p = theme.play();
+            if (p && p.catch) p.catch(() => {});
           }
         }
 
@@ -3175,287 +3180,63 @@
           this.activeVoiceEndTime = 0;
         }
 
-        playKidRockVoice() {
-          // Plays a random Kid Rock vocal catchphrase with zero latency and returns the selected clip info
+        // Start a clip in the single voice slot, cutting whatever was speaking. Returns false if not loaded yet.
+        startVoiceClip(clip, volume) {
+          this.stopVoice();
+          if (this.ctx && clip.buffer) {
+            const source = this.ctx.createBufferSource();
+            const gain = this.ctx.createGain();
+            source.buffer = clip.buffer;
+            gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+            source.connect(gain);
+            gain.connect(this.master);
+            source.start(0);
+            this.activeVoiceSource = source;
+            this.activeVoiceGain = gain;
+            this.activeVoiceEndTime = performance.now() + clip.buffer.duration * 1000;
+            source.onended = () => {
+              if (this.activeVoiceSource === source) {
+                this.activeVoiceSource = null;
+                this.activeVoiceGain = null;
+              }
+            };
+            return true;
+          }
+          if (clip.audioEl) {
+            const a = clip.audioEl;
+            a.currentTime = 0;
+            a.volume = volume;
+            a.muted = this.muted;
+            a.play().catch(() => {});
+            this.activeVoiceAudioEl = a;
+            this.activeVoiceEndTime = performance.now() + (a.duration || 3.0) * 1000;
+            return true;
+          }
+          return false;
+        }
+
+        // Random loaded clip from a pool, never the same one twice in a row.
+        // Returns null when nothing played so callers don't caption silence.
+        playFromPool(poolName, clips) {
           try {
-            if (!this.ctx) {
-              this.init();
-            }
-            if (!this.kidRockLoading) {
-              this.preloadKidRockClips();
-            }
-
-            // Immediately stop previous voice source to prevent audio overlap
-            if (this.activeVoiceSource) {
-              try {
-                if (this.activeVoiceGain && this.ctx) {
-                  this.activeVoiceGain.gain.setValueAtTime(this.activeVoiceGain.gain.value, this.ctx.currentTime);
-                  this.activeVoiceGain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
-                }
-                this.activeVoiceSource.stop(this.ctx ? this.ctx.currentTime + 0.05 : 0);
-              } catch (e) {}
-              this.activeVoiceSource = null;
-            }
-            if (this.activeVoiceAudioEl) {
-              try {
-                this.activeVoiceAudioEl.pause();
-                this.activeVoiceAudioEl.currentTime = 0;
-              } catch (e) {}
-              this.activeVoiceAudioEl = null;
-            }
-
-            const randomIndex = Math.floor(Math.random() * this.kidRockClips.length);
-            const clip = this.kidRockClips[randomIndex];
-
-            if (this.ctx && clip.buffer) {
-              const source = this.ctx.createBufferSource();
-              const gain = this.ctx.createGain();
-              source.buffer = clip.buffer;
-              gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
-              source.connect(gain);
-              gain.connect(this.ctx.destination);
-              source.start(0);
-
-              this.activeVoiceSource = source;
-              this.activeVoiceGain = gain;
-              const durationMs = (clip.buffer.duration || 2.5) * 1000;
-              this.activeVoiceEndTime = performance.now() + durationMs;
-
-              source.onended = () => {
-                if (this.activeVoiceSource === source) {
-                  this.activeVoiceSource = null;
-                  this.activeVoiceGain = null;
-                }
-              };
-              return clip;
-            } else if (clip.audioEl) {
-              clip.audioEl.currentTime = 0;
-              clip.audioEl.volume = 0.85;
-              clip.audioEl.play().catch(() => {});
-              this.activeVoiceAudioEl = clip.audioEl;
-              this.activeVoiceEndTime = performance.now() + (clip.audioEl.duration || 3.0) * 1000;
-              return clip;
-            } else {
-              // Fallback to guitar power chord synth if clip still buffering
-              this.playGuitarRiff();
-              return clip;
-            }
+            if (!this.ctx) this.init();
+            this.loadClips(clips);
+            let ready = clips.filter(c => c.buffer || c.audioEl);
+            if (ready.length > 1) ready = ready.filter(c => c.id !== this.lastClipId[poolName]);
+            if (ready.length === 0) return null;
+            const clip = ready[Math.floor(Math.random() * ready.length)];
+            if (!this.startVoiceClip(clip, 0.85)) return null;
+            this.lastClipId[poolName] = clip.id;
+            return clip;
           } catch (e) {
-            this.playGuitarRiff();
             return null;
           }
         }
 
-        playJDVoice() {
-          // Plays a random JD Vance soundbite (Hawthorne Heights emo guitar/screamo, Holt's donuts, Diet Mountain Dew) with zero latency
-          try {
-            if (!this.ctx) {
-              this.init();
-            }
-            if (!this.jdLoading) {
-              this.preloadJDClips();
-            }
-
-            // Immediately stop previous voice source to prevent audio overlap
-            if (this.activeVoiceSource) {
-              try {
-                if (this.activeVoiceGain && this.ctx) {
-                  this.activeVoiceGain.gain.setValueAtTime(this.activeVoiceGain.gain.value, this.ctx.currentTime);
-                  this.activeVoiceGain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
-                }
-                this.activeVoiceSource.stop(this.ctx ? this.ctx.currentTime + 0.05 : 0);
-              } catch (e) {}
-              this.activeVoiceSource = null;
-            }
-            if (this.activeVoiceAudioEl) {
-              try {
-                this.activeVoiceAudioEl.pause();
-                this.activeVoiceAudioEl.currentTime = 0;
-              } catch (e) {}
-              this.activeVoiceAudioEl = null;
-            }
-
-            const randomIndex = Math.floor(Math.random() * this.jdClips.length);
-            const clip = this.jdClips[randomIndex];
-
-            if (this.ctx && clip.buffer) {
-              const source = this.ctx.createBufferSource();
-              const gain = this.ctx.createGain();
-              source.buffer = clip.buffer;
-              gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
-              source.connect(gain);
-              gain.connect(this.ctx.destination);
-              source.start(0);
-
-              this.activeVoiceSource = source;
-              this.activeVoiceGain = gain;
-              const durationMs = (clip.buffer.duration || 2.5) * 1000;
-              this.activeVoiceEndTime = performance.now() + durationMs;
-
-              source.onended = () => {
-                if (this.activeVoiceSource === source) {
-                  this.activeVoiceSource = null;
-                  this.activeVoiceGain = null;
-                }
-              };
-              return clip;
-            } else if (clip.audioEl) {
-              clip.audioEl.currentTime = 0;
-              clip.audioEl.volume = 0.85;
-              clip.audioEl.play().catch(() => {});
-              this.activeVoiceAudioEl = clip.audioEl;
-              this.activeVoiceEndTime = performance.now() + (clip.audioEl.duration || 3.0) * 1000;
-              return clip;
-            } else {
-              // Fallback to score chime if clip still buffering
-              this.playScore();
-              return clip;
-            }
-          } catch (e) {
-            this.playScore();
-            return null;
-          }
-        }
-
-        playDonVoice() {
-          // Plays a random Diaper Don soundbite (Village People YMCA / Macho Man, China, Bing Bong, Stable Genius) with zero latency
-          try {
-            if (!this.ctx) {
-              this.init();
-            }
-            if (!this.donLoading) {
-              this.preloadDonClips();
-            }
-
-            // Immediately stop previous voice source to prevent audio overlap
-            if (this.activeVoiceSource) {
-              try {
-                if (this.activeVoiceGain && this.ctx) {
-                  this.activeVoiceGain.gain.setValueAtTime(this.activeVoiceGain.gain.value, this.ctx.currentTime);
-                  this.activeVoiceGain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
-                }
-                this.activeVoiceSource.stop(this.ctx ? this.ctx.currentTime + 0.05 : 0);
-              } catch (e) {}
-              this.activeVoiceSource = null;
-            }
-            if (this.activeVoiceAudioEl) {
-              try {
-                this.activeVoiceAudioEl.pause();
-                this.activeVoiceAudioEl.currentTime = 0;
-              } catch (e) {}
-              this.activeVoiceAudioEl = null;
-            }
-
-            const randomIndex = Math.floor(Math.random() * this.donClips.length);
-            const clip = this.donClips[randomIndex];
-
-            if (this.ctx && clip.buffer) {
-              const source = this.ctx.createBufferSource();
-              const gain = this.ctx.createGain();
-              source.buffer = clip.buffer;
-              gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
-              source.connect(gain);
-              gain.connect(this.ctx.destination);
-              source.start(0);
-
-              this.activeVoiceSource = source;
-              this.activeVoiceGain = gain;
-              const durationMs = (clip.buffer.duration || 2.5) * 1000;
-              this.activeVoiceEndTime = performance.now() + durationMs;
-
-              source.onended = () => {
-                if (this.activeVoiceSource === source) {
-                  this.activeVoiceSource = null;
-                  this.activeVoiceGain = null;
-                }
-              };
-              return clip;
-            } else if (clip.audioEl) {
-              clip.audioEl.currentTime = 0;
-              clip.audioEl.volume = 0.85;
-              clip.audioEl.play().catch(() => {});
-              this.activeVoiceAudioEl = clip.audioEl;
-              this.activeVoiceEndTime = performance.now() + (clip.audioEl.duration || 3.0) * 1000;
-              return clip;
-            } else {
-              this.playScore();
-              return clip;
-            }
-          } catch (e) {
-            this.playScore();
-            return null;
-          }
-        }
-
-        playBobbyVoice() {
-          // Plays a random Bobby (RFK Jr.) soundbite (Brain worm, Frogs, Eat a dog, God damnit Marjorie, Raccoon) with zero latency
-          try {
-            if (!this.ctx) {
-              this.init();
-            }
-            if (!this.bobbyLoading) {
-              this.preloadBobbyClips();
-            }
-
-            // Immediately stop previous voice source to prevent audio overlap
-            if (this.activeVoiceSource) {
-              try {
-                if (this.activeVoiceGain && this.ctx) {
-                  this.activeVoiceGain.gain.setValueAtTime(this.activeVoiceGain.gain.value, this.ctx.currentTime);
-                  this.activeVoiceGain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.04);
-                }
-                this.activeVoiceSource.stop(this.ctx ? this.ctx.currentTime + 0.05 : 0);
-              } catch (e) {}
-              this.activeVoiceSource = null;
-            }
-            if (this.activeVoiceAudioEl) {
-              try {
-                this.activeVoiceAudioEl.pause();
-                this.activeVoiceAudioEl.currentTime = 0;
-              } catch (e) {}
-              this.activeVoiceAudioEl = null;
-            }
-
-            const randomIndex = Math.floor(Math.random() * this.bobbyClips.length);
-            const clip = this.bobbyClips[randomIndex];
-
-            if (this.ctx && clip.buffer) {
-              const source = this.ctx.createBufferSource();
-              const gain = this.ctx.createGain();
-              source.buffer = clip.buffer;
-              gain.gain.setValueAtTime(0.85, this.ctx.currentTime);
-              source.connect(gain);
-              gain.connect(this.ctx.destination);
-              source.start(0);
-
-              this.activeVoiceSource = source;
-              this.activeVoiceGain = gain;
-              const durationMs = (clip.buffer.duration || 2.5) * 1000;
-              this.activeVoiceEndTime = performance.now() + durationMs;
-
-              source.onended = () => {
-                if (this.activeVoiceSource === source) {
-                  this.activeVoiceSource = null;
-                  this.activeVoiceGain = null;
-                }
-              };
-              return clip;
-            } else if (clip.audioEl) {
-              clip.audioEl.currentTime = 0;
-              clip.audioEl.volume = 0.85;
-              clip.audioEl.play().catch(() => {});
-              this.activeVoiceAudioEl = clip.audioEl;
-              this.activeVoiceEndTime = performance.now() + (clip.audioEl.duration || 3.0) * 1000;
-              return clip;
-            } else {
-              this.playScore();
-              return clip;
-            }
-          } catch (e) {
-            this.playScore();
-            return null;
-          }
-        }
+        playKidRockVoice() { return this.playFromPool("kidRock", this.kidRockClips); }
+        playJDVoice() { return this.playFromPool("jd", this.jdClips); }
+        playDonVoice() { return this.playFromPool("don", this.donClips); }
+        playBobbyVoice() { return this.playFromPool("bobby", this.bobbyClips); }
 
         playKirkTheme() {
           try {
@@ -3467,6 +3248,8 @@
               this.kirkTheme.loop = true;
               this.kirkTheme.volume = 0.70;
             }
+            this.wantedTheme = this.kirkTheme;
+            this.kirkTheme.muted = this.muted;
             if (this.kirkTheme.paused) {
               this.kirkTheme.currentTime = 0;
               const p = this.kirkTheme.play();
@@ -3480,6 +3263,7 @@
             if (this.kirkTheme) {
               this.kirkTheme.pause();
               this.kirkTheme.currentTime = 0;
+              if (this.wantedTheme === this.kirkTheme) this.wantedTheme = null;
             }
           } catch (e) {}
         }
@@ -3495,6 +3279,7 @@
         resumeKirkTheme() {
           try {
             if (this.kirkTheme && this.kirkTheme.paused) {
+              this.kirkTheme.muted = this.muted;
               const p = this.kirkTheme.play();
               if (p && p.catch) p.catch(() => {});
             }
@@ -3511,6 +3296,8 @@
               this.erikkkaTheme.loop = true;
               this.erikkkaTheme.volume = 0.70;
             }
+            this.wantedTheme = this.erikkkaTheme;
+            this.erikkkaTheme.muted = this.muted;
             if (this.erikkkaTheme.paused) {
               this.erikkkaTheme.currentTime = 0;
               const p = this.erikkkaTheme.play();
@@ -3524,6 +3311,7 @@
             if (this.erikkkaTheme) {
               this.erikkkaTheme.pause();
               this.erikkkaTheme.currentTime = 0;
+              if (this.wantedTheme === this.erikkkaTheme) this.wantedTheme = null;
             }
           } catch (e) {}
         }
@@ -3539,6 +3327,7 @@
         resumeErikkkaTheme() {
           try {
             if (this.erikkkaTheme && this.erikkkaTheme.paused) {
+              this.erikkkaTheme.muted = this.muted;
               const p = this.erikkkaTheme.play();
               if (p && p.catch) p.catch(() => {});
             }
@@ -3557,9 +3346,8 @@
         playKirkCrash() {
           try {
             this.stopKirkTheme();
-            const crashAudio = new Audio(ASSET_BASE + "assets/kirk_feedback_crash.mp3");
-            crashAudio.volume = 0.9;
-            crashAudio.play().catch(() => {});
+            this.loadClips([this.kirkCrashClip]);
+            this.startVoiceClip(this.kirkCrashClip, 0.9);
           } catch (e) {}
         }
 
@@ -3580,7 +3368,7 @@
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
 
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.master);
 
             osc.start(now);
             osc.stop(now + 0.25);
@@ -3599,7 +3387,7 @@
             noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
 
             noise.connect(noiseGain);
-            noiseGain.connect(this.ctx.destination);
+            noiseGain.connect(this.master);
 
             noise.start(now);
             noise.stop(now + 0.15);
@@ -3623,7 +3411,7 @@
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
 
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.master);
             osc.start(now);
             osc.stop(now + 0.22);
 
@@ -3648,7 +3436,7 @@
 
             noise.connect(filter);
             filter.connect(noiseGain);
-            noiseGain.connect(this.ctx.destination);
+            noiseGain.connect(this.master);
 
             noise.start(now);
             noise.stop(now + 0.16);
@@ -3669,7 +3457,7 @@
             gain1.gain.setValueAtTime(0.35, now);
             gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
             osc1.connect(gain1);
-            gain1.connect(this.ctx.destination);
+            gain1.connect(this.master);
             osc1.start(now);
             osc1.stop(now + 0.08);
 
@@ -3681,7 +3469,7 @@
             gain2.gain.setValueAtTime(0.4, now + 0.06);
             gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
             osc2.connect(gain2);
-            gain2.connect(this.ctx.destination);
+            gain2.connect(this.master);
             osc2.start(now + 0.06);
             osc2.stop(now + 0.18);
           } catch (e) {}
@@ -3704,7 +3492,7 @@
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
 
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.master);
 
             osc.start(now);
             osc.stop(now + 0.14);
@@ -3720,7 +3508,7 @@
             popGain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
 
             popOsc.connect(popGain);
-            popGain.connect(this.ctx.destination);
+            popGain.connect(this.master);
 
             popOsc.start(now);
             popOsc.stop(now + 0.09);
@@ -3744,7 +3532,7 @@
               gain.gain.exponentialRampToValueAtTime(0.01, noteTime + 0.18);
 
               osc.connect(gain);
-              gain.connect(this.ctx.destination);
+              gain.connect(this.master);
 
               osc.start(noteTime);
               osc.stop(noteTime + 0.18);
@@ -3766,7 +3554,7 @@
             gain1.gain.setValueAtTime(0.35, now);
             gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.10);
             osc1.connect(gain1);
-            gain1.connect(this.ctx.destination);
+            gain1.connect(this.master);
             osc1.start(now);
             osc1.stop(now + 0.10);
 
@@ -3778,7 +3566,7 @@
             gain2.gain.setValueAtTime(0.45, now + 0.08);
             gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.40);
             osc2.connect(gain2);
-            gain2.connect(this.ctx.destination);
+            gain2.connect(this.master);
             osc2.start(now + 0.08);
             osc2.stop(now + 0.40);
           } catch (e) {}
@@ -3796,7 +3584,7 @@
             gain.gain.setValueAtTime(0.2, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
             osc.connect(gain);
-            gain.connect(this.ctx.destination);
+            gain.connect(this.master);
             osc.start(now);
             osc.stop(now + 0.05);
           } catch (e) {}
@@ -3836,18 +3624,87 @@
           }
           if (sfx.pauseKirkTheme) sfx.pauseKirkTheme();
           if (sfx.pauseErikkkaTheme) sfx.pauseErikkkaTheme();
-        } else {
-          if (sfx.ctx && sfx.ctx.state !== "running" && (currentState === STATE.PLAYING || currentState === "PLAYING")) {
-            sfx.ctx.resume().catch(() => {});
-          }
-          if (currentState === STATE.PLAYING || currentState === "PLAYING") {
-            const activeChar = (typeof gameState !== "undefined" && gameState.selectedCharacterId && CHARACTER_REGISTRY[gameState.selectedCharacterId])
-              ? gameState.selectedCharacterId
-              : (typeof selectedCharacter !== "undefined" ? selectedCharacter : "jd");
-            if (activeChar === "kirk" && sfx.resumeKirkTheme) sfx.resumeKirkTheme();
-            if (activeChar === "erikkka" && sfx.resumeErikkkaTheme) sfx.resumeErikkkaTheme();
-          }
+          sfx.stopVoice();
+          pauseGame();
+        } else if (sfx.ctx && sfx.ctx.state !== "running") {
+          // Themes stay paused; the run waits on the pause screen for a tap
+          sfx.ctx.resume().catch(() => {});
         }
+      });
+      // Notification shade / control centre on iOS blur the page without hiding it
+      window.addEventListener("blur", () => pauseGame());
+
+      // --- PAUSE ---
+      let gamePaused = false;
+      let pausedAt = 0;
+
+      function pauseGame() {
+        if (gamePaused || currentState !== STATE.PLAYING) return;
+        gamePaused = true;
+        pausedAt = performance.now();
+        sfx.stopVoice();
+        sfx.pauseKirkTheme();
+        sfx.pauseErikkkaTheme();
+      }
+
+      function resumeGame() {
+        if (!gamePaused) return;
+        gamePaused = false;
+        // Popups are timed off the wall clock; don't let them expire while paused
+        const pausedFor = performance.now() - pausedAt;
+        floatingPopups.forEach(p => { p.startTime += pausedFor; });
+        lastTime = performance.now();
+        sfx.unlock();
+      }
+
+      function drawPauseUI() {
+        ctx.save();
+        ctx.fillStyle = "rgba(2, 6, 23, 0.6)";
+        ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.lineJoin = "round";
+        ctx.font = "900 44px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = "#000000";
+        ctx.strokeText("PAUSED", LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.4);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText("PAUSED", LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.4);
+        ctx.font = "700 17px -apple-system, BlinkMacSystemFont, sans-serif";
+        ctx.fillStyle = "#fbbf24";
+        ctx.fillText("Tap or press Space to resume", LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.4 + 44);
+        ctx.restore();
+      }
+
+      // --- MUTE ---
+      const muteBtnEl = document.getElementById("mute-btn");
+
+      function renderMuteButton() {
+        if (!muteBtnEl) return;
+        muteBtnEl.textContent = sfx.muted ? "🔇" : "🔊";
+        muteBtnEl.setAttribute("aria-pressed", sfx.muted ? "true" : "false");
+        muteBtnEl.setAttribute("aria-label", sfx.muted ? "Unmute sound" : "Mute sound");
+      }
+
+      function toggleMute() {
+        sfx.setMuted(!sfx.muted);
+        renderMuteButton();
+      }
+
+      if (muteBtnEl) {
+        muteBtnEl.addEventListener("click", function (e) {
+          e.stopPropagation();
+          toggleMute();
+        });
+        renderMuteButton();
+      }
+
+      // Touch pointerdown isn't a user activation, so retry audio from the events that are
+      ["pointerup", "touchend", "keydown"].forEach(evt => {
+        window.addEventListener(evt, () => {
+          if (gamePaused) sfx.init();
+          else sfx.unlock();
+        }, { passive: true });
       });
 
       // --- PROGRESSION & ACHIEVEMENTS SYSTEM (CRYPTOGRAPHICALLY SIGNED VAULT) ---
@@ -5666,60 +5523,32 @@
             }
 
             // Character voice punchlines ONLY trigger when passing through SPECIAL OBSTACLE GATES
+            // Gate voices wait their turn: never cut off a line that's still playing,
+            // and only quote a clip that actually played
+            const gateVoice = (play) => (sfx.isVoicePlaying() ? null : play());
+            const gatePopup = (text, flags) => floatingPopups.push(Object.assign({
+              x: bird.x,
+              y: Math.max(70, bird.y - 25),
+              startTime: performance.now(),
+              duration: 1600,
+              text: text
+            }, flags));
+
             if (p.obstacleType === "kid_rock") {
-              const playedClip = sfx.playKidRockVoice();
-              const phraseText = (playedClip && playedClip.text) ? playedClip.text : "🎸 BAWITDABA!";
-              floatingPopups.push({
-                x: bird.x,
-                y: Math.max(70, bird.y - 25),
-                startTime: performance.now(),
-                duration: 1500,
-                text: phraseText,
-                isKidRock: true
-              });
+              const clip = gateVoice(() => sfx.playKidRockVoice());
+              gatePopup(clip ? clip.text : "🎸 ROCK ON!", { isKidRock: true });
             } else if (p.isSpecialGate) {
-              if (activeChar === "donny") {
-                const playedClip = sfx.playDonVoice();
-                const phraseText = (playedClip && playedClip.text) ? playedClip.text : "🕺 Y-M-C-A!";
-                floatingPopups.push({
-                  x: bird.x,
-                  y: Math.max(70, bird.y - 25),
-                  startTime: performance.now(),
-                  duration: 1600,
-                  text: "⭐ SPECIAL GATE! " + phraseText,
-                  isDonVoice: true
-                });
-              } else if (activeChar === "bobby") {
-                const playedClip = sfx.playBobbyVoice();
-                const phraseText = (playedClip && playedClip.text) ? playedClip.text : "🪱 BRAIN PARASITE!";
-                floatingPopups.push({
-                  x: bird.x,
-                  y: Math.max(70, bird.y - 25),
-                  startTime: performance.now(),
-                  duration: 1600,
-                  text: "⭐ SPECIAL GATE! " + phraseText,
-                  isBobbyVoice: true
-                });
-              } else if (activeChar === "jd") {
-                const playedClip = sfx.playJDVoice();
-                const phraseText = (playedClip && playedClip.text) ? playedClip.text : "👌 OKAY, GOOD.";
-                floatingPopups.push({
-                  x: bird.x,
-                  y: Math.max(70, bird.y - 25),
-                  startTime: performance.now(),
-                  duration: 1600,
-                  text: "⭐ SPECIAL GATE! " + phraseText,
-                  isJDEmo: true
-                });
+              const gateVoices = {
+                donny: [() => sfx.playDonVoice(), { isDonVoice: true }],
+                bobby: [() => sfx.playBobbyVoice(), { isBobbyVoice: true }],
+                jd: [() => sfx.playJDVoice(), { isJDEmo: true }]
+              };
+              if (gateVoices[activeChar]) {
+                const [play, flags] = gateVoices[activeChar];
+                const clip = gateVoice(play);
+                gatePopup(clip ? "⭐ SPECIAL GATE! " + clip.text : "⭐ SPECIAL GATE!", flags);
               } else if (activeChar === "kirk") {
-                floatingPopups.push({
-                  x: bird.x,
-                  y: Math.max(70, bird.y - 25),
-                  startTime: performance.now(),
-                  duration: 1600,
-                  text: "★ WE ARE CHARLIE KIRK! ★",
-                  isKirkVoice: true
-                });
+                gatePopup("★ WE ARE CHARLIE KIRK! ★", { isKirkVoice: true });
               }
             }
 
@@ -7303,182 +7132,163 @@
         });
       }
 
+      // [stroke, gradient stops] per popup flavour; a plain string is a flat fill
+      const POPUP_STYLES = {
+        autism: ["#4a044e", [[0, "#fdf4ff"], [0.5, "#d946ef"], [1, "#a855f7"]]],
+        pampers: ["#78350f", [[0, "#fef08a"], [0.5, "#fbbf24"], [1, "#f59e0b"]]],
+        shield: ["#0369a1", [[0, "#e0f2fe"], [0.5, "#38bdf8"], [1, "#0284c7"]]],
+        matcha: ["#14532d", [[0, "#d9f99d"], [0.5, "#84cc16"], [1, "#65a30d"]]],
+        burger: ["#7f1d1d", [[0, "#fef08a"], [0.45, "#facc15"], [1, "#dc2626"]]],
+        epstein: ["#450a0a", [[0, "#fee2e2"], [0.5, "#ef4444"], [1, "#b91c1c"]]],
+        kidRock: ["#450a0a", [[0, "#fef08a"], [0.35, "#facc15"], [0.75, "#f97316"], [1, "#dc2626"]]],
+        jd: ["#1e1b4b", [[0, "#f5d0fe"], [0.35, "#c084fc"], [0.75, "#38bdf8"], [1, "#0284c7"]]],
+        don: ["#7f1d1d", [[0, "#fef08a"], [0.35, "#facc15"], [0.70, "#fb923c"], [1, "#dc2626"]]],
+        bobby: ["#064e3b", [[0, "#ecfdf5"], [0.35, "#34d399"], [0.70, "#10b981"], [1, "#06b6d4"]]],
+        milk: ["#78350f", "#fef08a"],
+        pickup: ["#052e16", [[0, "#fef08a"], [0.5, "#4ade80"], [1, "#22c55e"]]]
+      };
+
+      function popupStyleKey(p, text) {
+        if (p.isShield) return text.includes("AUTISM") ? "autism" : (text.includes("PAMPERS") ? "pampers" : "shield");
+        if (p.isMatcha) return "matcha";
+        if (p.isBurger) return "burger";
+        if (p.isEpsteinFile) return "epstein";
+        if (p.isKidRock) return "kidRock";
+        if (p.isJDEmo) return "jd";
+        if (p.isDonVoice) return "don";
+        if (p.isBobbyVoice) return "bobby";
+        if (p.isMilk) return "milk";
+        return "pickup";
+      }
+
+      const POPUP_PAD_X = 12;
+      const POPUP_LINE_GAP = 1.2;
+      const POPUP_MARGIN = 10;
+      const POPUP_BOUNCE = 0.08;
+      // Below the 52px score counter at y=40, above the ground
+      const POPUP_MIN_Y = 118;
+      const POPUP_MAX_Y = GROUND_Y - 24;
+
+      function wrapPopupText(text, maxW) {
+        const words = text.split(" ");
+        const lines = [];
+        let line = "";
+        for (const w of words) {
+          const next = line ? line + " " + w : w;
+          if (line && ctx.measureText(next).width > maxW) {
+            lines.push(line);
+            line = w;
+          } else {
+            line = next;
+          }
+        }
+        if (line) lines.push(line);
+        return lines;
+      }
+
+      // Measure once: pick the largest font where the text fits in two lines.
+      function layoutPopup(p, text) {
+        const maxW = (LOGICAL_WIDTH - POPUP_MARGIN * 2) / (1 + POPUP_BOUNCE) - POPUP_PAD_X * 2;
+        let size = 18;
+        let lines;
+        for (; size >= 13; size--) {
+          ctx.font = "900 " + size + "px -apple-system, BlinkMacSystemFont, sans-serif";
+          lines = wrapPopupText(text, maxW);
+          if (lines.length <= 2 && lines.every(l => ctx.measureText(l).width <= maxW)) break;
+        }
+        size = Math.max(size, 13);
+        const width = Math.min(maxW, Math.max(...lines.map(l => ctx.measureText(l).width)));
+        const lineH = Math.round(size * POPUP_LINE_GAP);
+        const [stroke, fill] = POPUP_STYLES[popupStyleKey(p, text)];
+        let fillStyle = fill;
+        if (Array.isArray(fill)) {
+          fillStyle = ctx.createLinearGradient(0, -size * 0.55, 0, size * 0.55);
+          fill.forEach(([at, c]) => fillStyle.addColorStop(at, c));
+        }
+        // Readers need roughly 60ms per character; never shorter than the caller asked
+        p.duration = Math.max(p.duration || 0, Math.min(4000, 900 + text.length * 60));
+        p._layout = {
+          font: "900 " + size + "px -apple-system, BlinkMacSystemFont, sans-serif",
+          lines: lines,
+          lineH: lineH,
+          pillW: width + POPUP_PAD_X * 2,
+          pillH: lines.length * lineH + 12,
+          stroke: stroke,
+          fillStyle: fillStyle,
+          maxW: maxW
+        };
+        return p._layout;
+      }
+
       function drawFloatingPopups() {
         if (currentState === STATE.START || currentState === "START") return;
         const now = performance.now();
-        for (let i = floatingPopups.length - 1; i >= 0; i--) {
+        const placed = [];
+
+        // Oldest first, so a newer popup moves out of the way of one already on screen
+        for (let i = 0; i < floatingPopups.length; i++) {
           const p = floatingPopups[i];
+          const text = p.text || (p.isBurger ? "+3 BIG MAC!" : (p.isMilk ? "+3 RAW MILK!" : "+3 DEW!"));
+          const L = p._layout || layoutPopup(p, text);
           const elapsed = now - p.startTime;
           if (elapsed >= p.duration) {
-            floatingPopups.splice(i, 1);
+            floatingPopups.splice(i--, 1);
             continue;
           }
 
-          const progress = elapsed / p.duration; // 0 to 1
-          const driftY = p.y - progress * 40; // Drifts upward over duration
-          const alpha = 1 - progress; // Fades out over duration
-          const scale = 1 + Math.sin(progress * Math.PI) * 0.2; // Smooth pop bounce
+          const progress = elapsed / p.duration;
+          // Fully opaque for most of its life, then fade
+          const alpha = progress < 0.7 ? 1 : 1 - (progress - 0.7) / 0.3;
+          const scale = 1 + Math.sin(Math.min(1, progress * 4) * Math.PI) * POPUP_BOUNCE;
+
+          // Right of the bird (which ends at p.x + 28), clamped on screen
+          const halfW = L.pillW / 2;
+          const targetX = Math.max(p.x + 100, p.x + 40 + halfW);
+          const drawX = Math.min(LOGICAL_WIDTH - halfW - POPUP_MARGIN, Math.max(halfW + POPUP_MARGIN, targetX));
+          let drawY = Math.min(POPUP_MAX_Y, Math.max(POPUP_MIN_Y, p.y - progress * 30));
+
+          // Stack below any popup this one would cover
+          for (let moved = true, guard = 0; moved && guard < 6; guard++) {
+            moved = false;
+            for (const r of placed) {
+              if (Math.abs(r.x - drawX) < (r.w + L.pillW) / 2 && Math.abs(r.y - drawY) < (r.h + L.pillH) / 2 + 4) {
+                drawY = r.y + (r.h + L.pillH) / 2 + 6;
+                moved = true;
+              }
+            }
+          }
+          drawY = Math.min(POPUP_MAX_Y, drawY);
+          placed.push({ x: drawX, y: drawY, w: L.pillW, h: L.pillH });
 
           ctx.save();
-          ctx.font = "900 18px -apple-system, BlinkMacSystemFont, sans-serif";
-          const popupText = p.text || (p.isBurger ? "+3 BIG MAC!" : (p.isMilk ? "+3 RAW MILK!" : "+3 DEW!"));
-          const textMetrics = ctx.measureText(popupText);
-          const halfW = textMetrics.width / 2;
-
-          // Position text clearly to the right of the bird (bird ends at p.x + 28), ensuring zero obstruction and no off-screen clipping
-          const minCenterForBird = (p.x + 40) + halfW;
-          const targetX = Math.max(p.x + 100, minCenterForBird);
-          const drawX = Math.min(LOGICAL_WIDTH - halfW - 14, Math.max(halfW + 14, targetX));
-          const drawY = Math.max(45, driftY);
-
           ctx.translate(drawX, drawY);
           ctx.scale(scale, scale);
           ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
 
-          // Subtle dark translucent pill backdrop for maximum legibility against all backgrounds
-          ctx.save();
-          ctx.fillStyle = "rgba(0, 0, 0, 0.60)";
+          ctx.fillStyle = "rgba(0, 0, 0, 0.72)";
           ctx.beginPath();
-          const pillPadX = 12;
-          const pillPadY = 6;
-          const pillW = textMetrics.width + pillPadX * 2;
-          const pillH = 28;
           if (ctx.roundRect) {
-            ctx.roundRect(-pillW / 2, -pillH / 2, pillW, pillH, 8);
+            ctx.roundRect(-halfW, -L.pillH / 2, L.pillW, L.pillH, 8);
           } else {
-            ctx.rect(-pillW / 2, -pillH / 2, pillW, pillH);
+            ctx.rect(-halfW, -L.pillH / 2, L.pillW, L.pillH);
           }
           ctx.fill();
-          ctx.restore();
 
-          if (p.isShield) {
-            if (popupText.includes("AUTISM")) {
-              // Electric purple/magenta autism shield typography
-              ctx.lineWidth = 4;
-              ctx.strokeStyle = "#4a044e";
-              ctx.strokeText(popupText, 0, 0);
-              const autismGrad = ctx.createLinearGradient(0, -10, 0, 10);
-              autismGrad.addColorStop(0, "#fdf4ff");
-              autismGrad.addColorStop(0.5, "#d946ef");
-              autismGrad.addColorStop(1, "#a855f7");
-              ctx.fillStyle = autismGrad;
-            } else if (popupText.includes("PAMPERS")) {
-              // Golden Pampers & diaper shield banner
-              ctx.lineWidth = 4;
-              ctx.strokeStyle = "#78350f";
-              ctx.strokeText(popupText, 0, 0);
-              const pampersGrad = ctx.createLinearGradient(0, -10, 0, 10);
-              pampersGrad.addColorStop(0, "#fef08a");
-              pampersGrad.addColorStop(0.5, "#fbbf24");
-              pampersGrad.addColorStop(1, "#f59e0b");
-              ctx.fillStyle = pampersGrad;
-            } else {
-              // Erika K. / generic gold shield banner
-              ctx.lineWidth = 4;
-              ctx.strokeStyle = "#0369a1";
-              ctx.strokeText(popupText, 0, 0);
-              const shieldGrad = ctx.createLinearGradient(0, -10, 0, 10);
-              shieldGrad.addColorStop(0, "#e0f2fe");
-              shieldGrad.addColorStop(0.5, "#38bdf8");
-              shieldGrad.addColorStop(1, "#0284c7");
-              ctx.fillStyle = shieldGrad;
-            }
-          } else if (p.isMatcha) {
-            // Lime green (#84cc16) floating pickup indicator
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#14532d";
-            ctx.strokeText(popupText, 0, 0);
-            const matchaGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            matchaGrad.addColorStop(0, "#d9f99d");
-            matchaGrad.addColorStop(0.5, "#84cc16"); // lime green #84cc16
-            matchaGrad.addColorStop(1, "#65a30d");
-            ctx.fillStyle = matchaGrad;
-          } else if (p.isBurger) {
-            // Fast-food red and yellow typography
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#7f1d1d"; // deep red shadow outline
-            ctx.strokeText(popupText, 0, 0);
-            const burgerGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            burgerGrad.addColorStop(0, "#fef08a"); // bright yellow top
-            burgerGrad.addColorStop(0.45, "#facc15"); // golden arch yellow
-            burgerGrad.addColorStop(1, "#dc2626"); // fast-food red bottom
-            ctx.fillStyle = burgerGrad;
-          } else if (p.isEpsteinFile) {
-            // Unsealed court document & redaction bar styling: bold crimson outline with glowing gold text
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#450a0a";
-            ctx.strokeText(popupText, 0, 0);
-            const docGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            docGrad.addColorStop(0, "#fee2e2");
-            docGrad.addColorStop(0.5, "#ef4444");
-            docGrad.addColorStop(1, "#b91c1c");
-            ctx.fillStyle = docGrad;
-          } else if (p.isKidRock) {
-            // High-voltage Southern rock typography: deep crimson stroke with fiery electric gold/orange gradient
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#450a0a";
-            ctx.strokeText(popupText, 0, 0);
-            const rockGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            rockGrad.addColorStop(0, "#fef08a");
-            rockGrad.addColorStop(0.35, "#facc15");
-            rockGrad.addColorStop(0.75, "#f97316");
-            rockGrad.addColorStop(1, "#dc2626");
-            ctx.fillStyle = rockGrad;
-          } else if (p.isJDEmo) {
-            // JD Vance Dayton Ohio Emo & Donut Shop styling: deep eyeliner plum stroke with hot lilac / cyan / sky gradient
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#1e1b4b";
-            ctx.strokeText(popupText, 0, 0);
-            const emoGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            emoGrad.addColorStop(0, "#f5d0fe");
-            emoGrad.addColorStop(0.35, "#c084fc");
-            emoGrad.addColorStop(0.75, "#38bdf8");
-            emoGrad.addColorStop(1, "#0284c7");
-            ctx.fillStyle = emoGrad;
-          } else if (p.isDonVoice) {
-            // Diaper Don Village People Disco & Golden Arch styling: bold crimson outline with flashing disco gold / orange gradient
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#7f1d1d";
-            ctx.strokeText(popupText, 0, 0);
-            const donGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            donGrad.addColorStop(0, "#fef08a");
-            donGrad.addColorStop(0.35, "#facc15");
-            donGrad.addColorStop(0.70, "#fb923c");
-            donGrad.addColorStop(1, "#dc2626");
-            ctx.fillStyle = donGrad;
-          } else if (p.isBobbyVoice) {
-            // Bobby & Brain Worm biohack styling: deep forest green outline with radioactive neon lime / cyan gradient
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#064e3b";
-            ctx.strokeText(popupText, 0, 0);
-            const bobbyGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            bobbyGrad.addColorStop(0, "#ecfdf5");
-            bobbyGrad.addColorStop(0.35, "#34d399");
-            bobbyGrad.addColorStop(0.70, "#10b981");
-            bobbyGrad.addColorStop(1, "#06b6d4");
-            ctx.fillStyle = bobbyGrad;
-          } else if (p.isMilk) {
-            // Shadow stroke
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#78350f";
-            ctx.strokeText(popupText, 0, 0);
-            // Bright cream-white (#fef08a)
-            ctx.fillStyle = "#fef08a";
-          } else {
-            // Shadow stroke
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = "#052e16";
-            ctx.strokeText(popupText, 0, 0);
-            // Neon green / yellow gradient fill
-            const textGrad = ctx.createLinearGradient(0, -10, 0, 10);
-            textGrad.addColorStop(0, "#fef08a");
-            textGrad.addColorStop(0.5, "#4ade80");
-            textGrad.addColorStop(1, "#22c55e");
-            ctx.fillStyle = textGrad;
-          }
-          ctx.fillText(popupText, 0, 0);
+          ctx.font = L.font;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.lineJoin = "round";
+          ctx.lineWidth = 4;
+          ctx.strokeStyle = L.stroke;
+          ctx.fillStyle = L.fillStyle;
+          const firstY = -((L.lines.length - 1) * L.lineH) / 2;
+          L.lines.forEach((line, n) => {
+            ctx.save();
+            ctx.translate(0, firstY + n * L.lineH);
+            ctx.strokeText(line, 0, 0, L.maxW);
+            ctx.fillText(line, 0, 0, L.maxW);
+            ctx.restore();
+          });
 
           ctx.restore();
         }
@@ -13597,6 +13407,7 @@
       }
 
       function clearRunState() {
+        gamePaused = false;
         // Explicitly reset player state
         player.y = 350;
         player.velocity = 0;
@@ -13715,6 +13526,11 @@
 
       function handleActionInput() {
         sfx.init();
+
+        if (gamePaused) {
+          resumeGame();
+          return;
+        }
 
         if (currentState === STATE.START || currentState === "START") {
           const currentCandidate = ROSTER_IDS[carouselIndex];
@@ -13912,7 +13728,18 @@
           }
         }
 
-        // Desktop backdoor hotkey removed
+        if (e.code === "KeyM") {
+          e.preventDefault();
+          toggleMute();
+          return;
+        }
+
+        if ((e.code === "Escape" || e.code === "KeyP") && currentState === STATE.PLAYING) {
+          e.preventDefault();
+          if (gamePaused) resumeGame();
+          else pauseGame();
+          return;
+        }
 
         if (currentState === STATE.START) {
           if (e.code === "ArrowLeft" || e.code === "KeyA") {
@@ -13953,7 +13780,8 @@
 
         // Normalized delta time based on 60 FPS (16.667ms per frame)
         // Clamped between 0.2 and 2.5 to avoid wild teleports when switching tabs
-        const dt = Math.min(Math.max(elapsed / 16.6667, 0.2), 2.5);
+        const frameDt = Math.min(Math.max(elapsed / 16.6667, 0.2), 2.5);
+        const dt = gamePaused ? 0 : frameDt;
         globalTimer += dt * 0.016;
 
         // Clear canvas
@@ -13972,10 +13800,12 @@
           }
 
           // Update physics & positions
-          bird.update(dt);
-          updatePipes(dt);
-          updateCollectibles(dt);
-          checkCollisions();
+          if (!gamePaused) {
+            bird.update(dt);
+            updatePipes(dt);
+            updateCollectibles(dt);
+            checkCollisions();
+          }
 
           // Draw scene layers in order
           updateAndDrawBackground(dt);
@@ -13995,6 +13825,7 @@
             drawGameOverUI();
           }
           drawCanvasAchievementToast(dt);
+          if (gamePaused) drawPauseUI();
 
           if (shaken) {
             ctx.restore();
@@ -14003,7 +13834,7 @@
 
           // Animate Cartoon Showcase close-up preview if open
           if (typeof galleryOpen !== "undefined" && galleryOpen) {
-            galleryAnimTime += dt * 0.016;
+            galleryAnimTime += frameDt * 0.016;
             renderGalleryStage();
           }
         } catch (loopErr) {
