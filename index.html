@@ -2082,6 +2082,8 @@
       flex-shrink: 0;
     }
 
+    .sound-card-sep { font-size: 8px; color: #475569; }
+    .sound-card-tag { font-size: 8px; font-weight: 700; color: #38bdf8; }
     .sound-card-quote {
       font-size: 10px;
       font-style: italic;
@@ -2484,27 +2486,20 @@
         return false;
       }, { capture: true });
 
-      // Intercept common save and source inspect keyboard shortcuts
-      window.addEventListener("keydown", function (e) {
-        // F12 (Developer tools)
-        if (e.keyCode === 123 || e.key === "F12") {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-        // Ctrl+S / Cmd+S (Save page), Ctrl+U / Cmd+U (View source)
-        if ((e.ctrlKey || e.metaKey) && (e.code === "KeyS" || e.code === "KeyU" || e.key === "s" || e.key === "S" || e.key === "u" || e.key === "U")) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-        // Ctrl+Shift+I / Cmd+Option+I, Ctrl+Shift+J / Cmd+Option+J, Ctrl+Shift+C (Inspect elements/console)
-        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.code === "KeyI" || e.code === "KeyJ" || e.code === "KeyC" || e.key === "I" || e.key === "J" || e.key === "C")) {
-          e.preventDefault();
-          e.stopPropagation();
-          return false;
-        }
-      }, { capture: true });
+      // The F12 / Ctrl+S / Ctrl+U / Ctrl+Shift+I hijack that used to live here is gone.
+      // It stopped nobody (DevTools opens from the menu) and it swallowed shortcuts that
+      // browsers and assistive software rely on. The source is open anyway.
+
+      // Honour the OS "reduce motion" setting: no screen shake.
+      const REDUCED_MOTION = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+      // Builds an element with text, never markup — nothing in this file is innerHTML'd with data.
+      function mkEl(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text != null) node.textContent = text;
+        return node;
+      }
 
       // --- CONFIGURATION & CONSTANTS ---
       const LOGICAL_WIDTH = 420;
@@ -2733,13 +2728,24 @@
             this.ctx.resume().catch(() => {});
           }
           this.initSquishBuffer();
-          this.preloadKidRockClips();
-          this.preloadJDClips();
-          this.preloadDonClips();
-          this.preloadBobbyClips();
-          this.preloadKirkClips();
-          this.preloadErikkkaClips();
-          this.loadClips([this.kirkCrashClip]);
+          // Voice clips are only ever needed after the player has tapped or pressed a key
+          // (a run cannot start without one), so they load on the first gesture rather than
+          // on the start screen. Before this, every landing fetched two dozen mp3s for nobody.
+          if (!this.clipsWarmed) {
+            const warm = () => {
+              if (this.clipsWarmed) return;
+              this.clipsWarmed = true;
+              this.preloadKidRockClips();
+              this.preloadJDClips();
+              this.preloadDonClips();
+              this.preloadBobbyClips();
+              this.preloadKirkClips();
+              this.preloadErikkkaClips();
+              this.loadClips([this.kirkCrashClip]);
+            };
+            if (navigator.userActivation && navigator.userActivation.hasBeenActive) warm();
+            else ["pointerdown", "keydown", "touchstart"].forEach(t => window.addEventListener(t, warm, { once: true, passive: true }));
+          }
         }
 
         // Decode into an AudioBuffer; fall back to an <audio> element if fetch or decode fails
@@ -3624,9 +3630,16 @@
           if (sfx.pauseErikkkaTheme) sfx.pauseErikkkaTheme();
           sfx.stopVoice();
           pauseGame();
-        } else if (sfx.ctx && sfx.ctx.state !== "running") {
-          // Themes stay paused; the run waits on the pause screen for a tap
-          sfx.ctx.resume().catch(() => {});
+        } else {
+          if (sfx.ctx && sfx.ctx.state !== "running") {
+            // Themes stay paused; the run waits on the pause screen for a tap
+            sfx.ctx.resume().catch(() => {});
+          }
+          if (loopParked) { // the loop parked itself while we were hidden
+            loopParked = false;
+            lastTime = performance.now();
+            requestAnimationFrame(gameLoop);
+          }
         }
       });
       // Notification shade / control centre on iOS blur the page without hiding it
@@ -12865,21 +12878,20 @@
 
           const isPlaying = soundboardPlayingId === item.id;
 
-          card.innerHTML = `
-            <button class="sound-play-btn" type="button" aria-label="Play sound">${isPlaying ? "⏹" : "▶"}</button>
-            <div class="sound-card-info">
-              <div class="sound-card-title-row">
-                <span class="sound-card-title">${item.title}</span>
-                <span class="sound-card-dur">${item.dur}</span>
-              </div>
-              <div class="sound-card-quote">"${item.quote}"</div>
-              <div class="sound-card-meta">
-                <span class="sound-card-char-tag">${item.charIcon} ${item.charName}</span>
-                <span style="font-size: 8px; color: #475569;">•</span>
-                <span style="font-size: 8px; font-weight: 700; color: #38bdf8;">${item.tag}</span>
-              </div>
-            </div>
-          `;
+          const playBtn = mkEl("button", "sound-play-btn", isPlaying ? "⏹" : "▶");
+          playBtn.type = "button";
+          playBtn.setAttribute("aria-label", "Play sound");
+          const titleRow = mkEl("div", "sound-card-title-row");
+          titleRow.append(mkEl("span", "sound-card-title", item.title), mkEl("span", "sound-card-dur", item.dur));
+          const meta = mkEl("div", "sound-card-meta");
+          meta.append(
+            mkEl("span", "sound-card-char-tag", `${item.charIcon} ${item.charName}`),
+            mkEl("span", "sound-card-sep", "•"),
+            mkEl("span", "sound-card-tag", item.tag)
+          );
+          const info = mkEl("div", "sound-card-info");
+          info.append(titleRow, mkEl("div", "sound-card-quote", `"${item.quote}"`), meta);
+          card.append(playBtn, info);
 
           card.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -13009,25 +13021,22 @@
           const card = document.createElement("div");
           card.className = `achievement-card ${isUnlocked ? "unlocked" : "locked"}`;
 
-          card.innerHTML = `
-            <div class="achievement-icon-wrap ${isUnlocked ? "unlocked" : "locked"}">
-              <span class="achievement-icon">${ach.icon || "🏆"}</span>
-              <span class="achievement-icon-badge">${isUnlocked ? "✓" : "🔒"}</span>
-            </div>
-            <div class="achievement-details">
-              <div class="achievement-title-row">
-                <span class="achievement-title">${ach.title}</span>
-                <span class="achievement-status-badge ${isUnlocked ? "badge-unlocked" : "badge-locked"}">
-                  ${isUnlocked ? "UNLOCKED" : "LOCKED"}
-                </span>
-              </div>
-              <div class="achievement-desc">${ach.desc}</div>
-              <div class="achievement-criteria">
-                <span class="criteria-label">${isUnlocked ? "STATUS:" : "HOW TO EARN:"}</span>
-                <span class="criteria-text">${isUnlocked ? "Earned and recorded in Trophy Vault!" : (ach.criteria || ach.desc)}</span>
-              </div>
-            </div>
-          `;
+          const state = isUnlocked ? "unlocked" : "locked";
+          const iconWrap = mkEl("div", `achievement-icon-wrap ${state}`);
+          iconWrap.append(mkEl("span", "achievement-icon", ach.icon || "🏆"), mkEl("span", "achievement-icon-badge", isUnlocked ? "✓" : "🔒"));
+          const titleRow = mkEl("div", "achievement-title-row");
+          titleRow.append(
+            mkEl("span", "achievement-title", ach.title),
+            mkEl("span", `achievement-status-badge badge-${state}`, isUnlocked ? "UNLOCKED" : "LOCKED")
+          );
+          const criteria = mkEl("div", "achievement-criteria");
+          criteria.append(
+            mkEl("span", "criteria-label", isUnlocked ? "STATUS:" : "HOW TO EARN:"),
+            mkEl("span", "criteria-text", isUnlocked ? "Earned and recorded in Trophy Vault!" : (ach.criteria || ach.desc))
+          );
+          const details = mkEl("div", "achievement-details");
+          details.append(titleRow, mkEl("div", "achievement-desc", ach.desc), criteria);
+          card.append(iconWrap, details);
           listEl.appendChild(card);
         });
       }
@@ -13631,6 +13640,8 @@
       }
 
       function onKeyInput(e) {
+        // Browser chords (Ctrl+S, Cmd+R, Alt+Tab…) are never the game's to take
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
         // Handle keyboard navigation when Cartoon Gallery modal is open
         if (typeof galleryOpen !== "undefined" && galleryOpen) {
           if (e.code === "Escape" || e.key === "Escape" || e.code === "KeyG" || e.key === "g" || e.key === "G") {
@@ -13749,8 +13760,10 @@
 
       // --- MAIN GAME LOOP WITH DELTA TIME ---
       let lastTime = performance.now();
+      let loopParked = false; // the render loop stops while the tab is hidden; visibilitychange restarts it
 
       function gameLoop(now) {
+        if (document.hidden) { loopParked = true; return; } // nothing to draw for nobody
         const elapsed = now - lastTime;
         lastTime = now;
 
@@ -13765,6 +13778,7 @@
 
         let shaken = false;
         try {
+          if (REDUCED_MOTION) screenShakeTimer = 0; // reduce motion: the camera never shakes
           if (screenShakeTimer > 0) {
             screenShakeTimer -= elapsed;
             const shakeMag = Math.min(8, (screenShakeTimer / 300) * 8);
