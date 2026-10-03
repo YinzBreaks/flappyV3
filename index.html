@@ -2350,11 +2350,11 @@
           <div class="soundboard-select-wrap">
             <span class="soundboard-select-icon">🔊</span>
             <select id="soundboard-filter-select" class="soundboard-category-select" aria-label="Filter Audio by Character">
-              <option value="all">⭐ All Sounds (28 Authentic Broadcast Clips)</option>
+              <option value="all">⭐ All Sounds (16 Clips)</option>
               <option value="bobby">🏋️ Bobby / RFK Jr. (5 Authentic Clips)</option>
               <option value="jd">🛋️ JD Vance (4 Viral Quotes)</option>
-              <option value="donny">🍼 Diaper Don (7 Rally &amp; Disco Clips)</option>
-              <option value="kid">🎸 Kid Rock (4 Iconic Arena Drops)</option>
+              <option value="donny">🍼 Diaper Don (4 Rally Clips)</option>
+              <option value="kid">🎸 Kid Rock (Cowboy Baby)</option>
               <option value="kirk">🎓 Kamikaze Kirk (Official Anthem)</option>
               <option value="erikkka">✨ EriKKKa (Convention Pyrotechnics &amp; Quotes)</option>
             </select>
@@ -2629,6 +2629,18 @@
         }
       ];
 
+      // Clips held out of the game and the Sound Vault until they're re-cut from
+      // proper sources. Delete a filename here to put its clip back everywhere.
+      const PARKED_CLIPS = new Set([
+        "don_ymca.mp3",
+        "don_the_boys.mp3",
+        "don_macho_man.mp3",
+        "kid_rock_bawitdaba.mp3",
+        "kid_rock_my_name_is_kid.mp3",
+        "guitar_power_chord.mp3"
+      ]);
+      const isParkedClip = url => PARKED_CLIPS.has(url.slice(url.lastIndexOf("/") + 1));
+
       // --- AUDIO SYNTHESIZER (Pure Web Audio API & Iconic Voice Soundbites) ---
       class SoundFX {
         constructor() {
@@ -2686,6 +2698,10 @@
             { id: "erikkka_anthem", url: ASSET_BASE + "assets/Untitled%20Project%20-%20Prove%20Me%20Wrong%20-%20Treblo.mp3", text: "✨ PROVE ME WRONG (UNTITLED) ✨", buffer: null, audioEl: null }
           ];
           this.erikkkaLoading = false;
+
+          for (const pool of ["kidRockClips", "jdClips", "donClips", "bobbyClips"]) {
+            this[pool] = this[pool].filter(clip => !isParkedClip(clip.url));
+          }
 
           this.activeVoiceSource = null;
           this.activeVoiceGain = null;
@@ -12760,7 +12776,7 @@
           dur: "3:16",
           tag: "Convention Theme Song"
         }
-      ];
+      ].filter(item => !isParkedClip(item.url));
 
       let soundboardOpen = false;
       let soundboardFilter = "all";
